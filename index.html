@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲーム集</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .game-list {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        
+        .game-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .game-icon {
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .game-icon img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .game-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+            text-align: center;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>ゲーム集</h1>
+    <div id="gameList" class="loading">ゲームを読み込み中...</div>
+
+    <script>
+        async function loadGames() {
+            try {
+                const response = await fetch('./links.json');
+                const games = await response.json();
+                
+                const gameListElement = document.getElementById('gameList');
+                gameListElement.innerHTML = '';
+                gameListElement.className = 'game-list';
+                
+                games.forEach(game => {
+                    const gameCard = document.createElement('a');
+                    gameCard.href = game.path;
+                    gameCard.className = 'game-card';
+                    
+                    if (game.icon) {
+                        const gameIcon = document.createElement('div');
+                        gameIcon.className = 'game-icon';
+                        
+                        if (game.icon.startsWith('http') || game.icon.startsWith('./') || game.icon.startsWith('../')) {
+                            const iconImg = document.createElement('img');
+                            iconImg.src = game.icon;
+                            iconImg.alt = game.title + ' icon';
+                            gameIcon.appendChild(iconImg);
+                        } else {
+                            gameIcon.textContent = game.icon;
+                        }
+                        
+                        gameCard.appendChild(gameIcon);
+                    }
+                    
+                    const gameTitle = document.createElement('h2');
+                    gameTitle.className = 'game-title';
+                    gameTitle.textContent = game.title;
+                    
+                    gameCard.appendChild(gameTitle);
+                    gameListElement.appendChild(gameCard);
+                });
+            } catch (error) {
+                console.error('ゲームの読み込みに失敗しました:', error);
+                document.getElementById('gameList').innerHTML = 'ゲームの読み込みに失敗しました。';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadGames);
+    </script>
+</body>
+</html>
