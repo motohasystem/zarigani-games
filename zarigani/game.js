@@ -80,6 +80,11 @@ class ZariganiGame {
         this.startButton.addEventListener('click', () => this.startGame());
         this.resetButton.addEventListener('click', () => this.resetGame());
         this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
+        this.canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            this.handleCanvasClick(touch);
+        });
     }
     
     generateStage() {
@@ -107,7 +112,8 @@ class ZariganiGame {
                 Math.random() * (this.stage.width - 100) + 50,
                 Math.random() * (this.stage.height - 100) + 50,
                 size,
-                this.zariganiImage
+                this.zariganiImage,
+                this
             );
             this.zariganiList.push(zarigani);
         }
@@ -135,6 +141,17 @@ class ZariganiGame {
         this.gameState = 'gameOver';
         clearInterval(this.gameTimer);
         this.startButton.disabled = false;
+        
+        // 全てのザリガニの状態をnormalに戻してインジケーターを非表示
+        this.zariganiList.forEach(zarigani => {
+            zarigani.state = 'normal';
+            zarigani.targetBait = null;
+            zarigani.nibblingTimer = 0;
+        });
+        
+        // 全ての餌を削除
+        this.baitList = [];
+        
         alert(`ゲーム終了！最終スコア: ${this.score}ポイント獲得`);
     }
     
@@ -159,8 +176,10 @@ class ZariganiGame {
         if (this.gameState !== 'playing') return;
         
         const rect = this.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
         
         let clickedBait = false;
         
@@ -190,7 +209,8 @@ class ZariganiGame {
                         Math.random() * (this.stage.width - 100) + 50,
                         Math.random() * (this.stage.height - 100) + 50,
                         Math.floor(Math.random() * 5) + 1,
-                        this.zariganiImage
+                        this.zariganiImage,
+                        this
                     );
                     this.zariganiList.push(newZarigani);
                     
@@ -314,11 +334,12 @@ class ZariganiGame {
 }
 
 class Zarigani {
-    constructor(x, y, size, image) {
+    constructor(x, y, size, image, game) {
         this.x = x;
         this.y = y;
         this.size = size;
         this.image = image;
+        this.game = game;
         this.processedImage = null;
         this.state = 'normal';
         this.targetBait = null;
@@ -443,32 +464,35 @@ class Zarigani {
             ctx.fillRect(-20, -10, 40, 20);
         }
         
-        if (this.state === 'nibbling') {
-            const progress = this.nibblingTimer / this.maxNibblingTime;
-            const radius = 500;
-            
-            ctx.strokeStyle = '#FF0000';
-            ctx.lineWidth = 120;
-            ctx.beginPath();
-            ctx.arc(0, 0, radius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * progress));
-            ctx.stroke();
-            
-            ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
-            ctx.lineWidth = 60;
-            ctx.beginPath();
-            ctx.arc(0, 0, radius, 0, Math.PI * 2);
-            ctx.stroke();
-        } else if (this.state === 'biting') {
-            ctx.strokeStyle = '#00FF00';
-            ctx.lineWidth = 120;
-            ctx.beginPath();
-            ctx.arc(0, 0, 500, 0, Math.PI * 2);
-            ctx.stroke();
-            
-            ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
-            ctx.beginPath();
-            ctx.arc(0, 0, 500, 0, Math.PI * 2);
-            ctx.fill();
+        // ゲーム中のみインジケーターを表示
+        if (this.game && this.game.gameState === 'playing') {
+            if (this.state === 'nibbling') {
+                const progress = this.nibblingTimer / this.maxNibblingTime;
+                const radius = 500;
+                
+                ctx.strokeStyle = '#FF0000';
+                ctx.lineWidth = 120;
+                ctx.beginPath();
+                ctx.arc(0, 0, radius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * progress));
+                ctx.stroke();
+                
+                ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+                ctx.lineWidth = 60;
+                ctx.beginPath();
+                ctx.arc(0, 0, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            } else if (this.state === 'biting') {
+                ctx.strokeStyle = '#00FF00';
+                ctx.lineWidth = 120;
+                ctx.beginPath();
+                ctx.arc(0, 0, 500, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
+                ctx.beginPath();
+                ctx.arc(0, 0, 500, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
         
         ctx.restore();
