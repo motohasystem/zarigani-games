@@ -1,0 +1,146 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #87CEEB, #98E4D6);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    max-width: 900px;
+    width: 100%;
+}
+
+.game-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.game-header h1 {
+    color: #2E8B57;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-around;
+    background: #f0f8ff;
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #87CEEB;
+}
+
+.score, .timer {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2E8B57;
+}
+
+.score span, .timer span {
+    color: #FF6347;
+}
+
+.game-area {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+#gameCanvas {
+    border: 3px solid #2E8B57;
+    border-radius: 10px;
+    cursor: crosshair;
+}
+
+.game-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#startButton {
+    background: linear-gradient(135deg, #32CD32, #228B22);
+    color: white;
+}
+
+#startButton:hover {
+    background: linear-gradient(135deg, #228B22, #006400);
+    transform: translateY(-2px);
+}
+
+#resetButton {
+    background: linear-gradient(135deg, #FF6347, #DC143C);
+    color: white;
+}
+
+#resetButton:hover {
+    background: linear-gradient(135deg, #DC143C, #B22222);
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.instructions {
+    text-align: center;
+    background: #FFF8DC;
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #DDD;
+    margin-top: 20px;
+}
+
+.instructions p {
+    color: #2E8B57;
+    font-size: 1.1em;
+    line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+    .game-container {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    #gameCanvas {
+        width: 100%;
+        max-width: 600px;
+        height: auto;
+    }
+    
+    .game-header h1 {
+        font-size: 2em;
+    }
+    
+    .game-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
