@@ -22,6 +22,25 @@ body {
     overflow: hidden;
 }
 
+/* トップに戻るリンク */
+.back-link {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1.1em;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.back-link:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
 /* 水の揺らめきアニメーション */
 #gameContainer::before {
     content: '';
