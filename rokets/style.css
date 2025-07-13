@@ -1,0 +1,202 @@
+/* リセットと基本スタイル */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    background: #001a33;
+    touch-action: none; /* タッチ操作のデフォルト動作を無効化 */
+    user-select: none; /* テキスト選択を無効化 */
+}
+
+/* ゲームコンテナ */
+#gameContainer {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    background: linear-gradient(180deg, #001a33 0%, #004080 50%, #0066cc 100%);
+    overflow: hidden;
+}
+
+/* 水の揺らめきアニメーション */
+#gameContainer::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 20% 80%, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    animation: waterWave 10s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes waterWave {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(2%, -2%) rotate(120deg); }
+    66% { transform: translate(-1%, 1%) rotate(240deg); }
+}
+
+/* スクリーン共通スタイル */
+.screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+    position: relative;
+}
+
+/* タイトル画面 */
+#titleScreen h1 {
+    font-size: 4rem;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
+    animation: titleGlow 2s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+    0%, 100% { text-shadow: 0 0 20px rgba(0, 150, 255, 0.8); }
+    50% { text-shadow: 0 0 30px rgba(0, 200, 255, 1); }
+}
+
+.instructions {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+}
+
+.btn {
+    padding: 15px 40px;
+    font-size: 1.3rem;
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+}
+
+.btn:hover {
+    background: #ff8555;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 107, 53, 0.6);
+}
+
+.highScore {
+    margin-top: 2rem;
+    font-size: 1.5rem;
+    color: #ffd700;
+}
+
+/* ゲーム画面 */
+#gameScreen {
+    display: flex;
+    flex-direction: row;
+}
+
+#gameArea {
+    flex: 1;
+    position: relative;
+    height: 100vh;
+    background: linear-gradient(180deg, #001a33 0%, #004080 50%, #0066cc 100%);
+}
+
+#gameCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#dragIndicator {
+    display: none;
+}
+
+/* ゲームUI */
+#gameUI {
+    width: 200px;
+    background: rgba(20, 20, 30, 0.95);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+    border-left: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.uiSection h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #87ceeb;
+}
+
+.scoreDisplay, .timerDisplay {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.timerDisplay {
+    color: #ffd700;
+}
+
+/* リザルト画面 */
+#resultScreen h1 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    color: #87ceeb;
+}
+
+.resultScore {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+}
+
+.newHighScore {
+    font-size: 2rem;
+    color: #ffd700;
+    margin: 1rem 0;
+    animation: newRecord 1s ease-in-out infinite;
+}
+
+@keyframes newRecord {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* 泡エフェクト */
+.bubble {
+    position: absolute;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: bubbleFloat 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes bubbleFloat {
+    0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.6;
+    }
+    90% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(-100px) scale(1);
+        opacity: 0;
+    }
+}

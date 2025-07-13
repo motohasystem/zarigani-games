@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ザリガニシューティング</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- タイトル画面 -->
+        <div id="titleScreen" class="screen">
+            <h1>ザリガニシューティング</h1>
+            <p class="instructions">
+                マウスドラッグでザリガニを発射！<br>
+                スルメをたくさん捕まえよう！
+            </p>
+            <button id="startButton" class="btn">ゲームスタート</button>
+            <div id="highScoreDisplay" class="highScore">
+                ハイスコア: <span id="highScoreValue">0</span>
+            </div>
+        </div>
+
+        <!-- ゲーム画面 -->
+        <div id="gameScreen" class="screen" style="display: none;">
+            <div id="gameArea">
+                <canvas id="gameCanvas"></canvas>
+                <div id="dragIndicator"></div>
+            </div>
+            <div id="gameUI">
+                <div class="uiSection">
+                    <h2>スコア</h2>
+                    <div id="score" class="scoreDisplay">0</div>
+                </div>
+                <div class="uiSection">
+                    <h2>残り時間</h2>
+                    <div id="timer" class="timerDisplay">20</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- リザルト画面 -->
+        <div id="resultScreen" class="screen" style="display: none;">
+            <h1>ゲーム終了！</h1>
+            <div class="resultScore">
+                スコア: <span id="finalScore">0</span>
+            </div>
+            <div id="newHighScore" class="newHighScore" style="display: none;">
+                新記録！
+            </div>
+            <div class="highScore">
+                ハイスコア: <span id="resultHighScore">0</span>
+            </div>
+            <button id="retryButton" class="btn">もう一度プレイ</button>
+        </div>
+    </div>
+
+    <script src="sound.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
