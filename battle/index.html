@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ザリガニ大決戦</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div id="gameUI">
+            <div id="titleScreen" class="screen">
+                <h1>ザリガニ大決戦</h1>
+                <p>マウスでザリガニを動かし、自分より小さなザリガニを食べて成長しよう！</p>
+                <p>制限時間: 60秒</p>
+                <button id="startButton">ゲーム開始</button>
+                <div id="highScore">最高スコア: <span id="highScoreValue">0</span></div>
+            </div>
+            
+            <div id="gameHUD" class="screen hidden">
+                <div id="gameInfo">
+                    <div id="timeDisplay">時間: <span id="timeValue">60</span>s</div>
+                    <div id="lifeDisplay">ライフ: <span id="lifeValue">3</span></div>
+                    <div id="scoreDisplay">スコア: <span id="scoreValue">0</span></div>
+                    <div id="sizeDisplay">サイズ: <span id="sizeValue">400</span>m</div>
+                </div>
+            </div>
+            
+            <div id="gameOverScreen" class="screen hidden">
+                <h2>ゲーム終了</h2>
+                <div id="finalScore">最終スコア: <span id="finalScoreValue">0</span></div>
+                <div id="finalSize">最終サイズ: <span id="finalSizeValue">400</span>m</div>
+                <button id="restartButton">もう一度プレイ</button>
+                <button id="backToMenuButton">メニューに戻る</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
