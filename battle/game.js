@@ -138,6 +138,17 @@ class ZariganiGrowthGame {
             this.mouse.x = Math.max(0, Math.min(this.worldSize, this.mouse.x));
             this.mouse.y = Math.max(0, Math.min(this.worldSize, this.mouse.y));
             
+            // マウスが動いたら慣性移動モードを解除
+            if (this.player && this.player.inertiaMode) {
+                const mouseMoveDistance = Math.sqrt(
+                    Math.pow(this.mouse.x - this.lastValidMouse.x, 2) + 
+                    Math.pow(this.mouse.y - this.lastValidMouse.y, 2)
+                );
+                if (mouseMoveDistance > 5) {  // 5ピクセル以上動いたら解除
+                    this.player.inertiaMode = false;
+                }
+            }
+            
             // 有効なマウス位置を保存
             this.lastValidMouse.x = this.mouse.x;
             this.lastValidMouse.y = this.mouse.y;
@@ -254,8 +265,8 @@ class ZariganiGrowthGame {
     update() {
         if (this.gameState !== 'playing') return;
         
-        // 常に最後の有効なマウス位置に向かって移動
-        this.player.update(this.lastValidMouse.x, this.lastValidMouse.y);
+        // 通常のマウス追従
+        this.player.update(this.mouse.x, this.mouse.y);
         
         // デバッグ情報を更新
         if (this.debugMode) {
@@ -708,6 +719,8 @@ class ZariganiGrowthGame {
         const speed = Math.sqrt(this.player.vx * this.player.vx + this.player.vy * this.player.vy);
         document.getElementById('playerSpeed').textContent = speed.toFixed(2);
         
+        document.getElementById('inertiaMode').textContent = this.player.inertiaMode ? 'true' : 'false';
+        
         document.getElementById('cameraInfo').textContent = `${this.camera.x.toFixed(0)}, ${this.camera.y.toFixed(0)} scale:${this.camera.scale.toFixed(2)}`;
         document.getElementById('lastUpdate').textContent = timeSinceLastUpdate.toString();
         
@@ -734,6 +747,10 @@ class Zarigani {
         this.color = isPlayer ? '#ff4444' : this.getRandomColor();
         this.lastTargetX = x;
         this.lastTargetY = y;
+        this.hasInitialDirection = false;
+        this.inertiaMode = false;  // 慣性移動モードフラグ
+        this.targetX = x;
+        this.targetY = y;
     }
     
     getRandomColor() {
@@ -755,12 +772,19 @@ class Zarigani {
             const dy = mouseY - this.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            // マウスに向かって移動（常に追従）
-            if (distance > 5) {
-                this.vx = (dx / distance) * this.speed;
-                this.vy = (dy / distance) * this.speed;
+            if (!this.inertiaMode) {
+                // 通常モード：マウスに向かって移動
+                if (distance > 10) {
+                    this.vx = (dx / distance) * this.speed;
+                    this.vy = (dy / distance) * this.speed;
+                    this.targetX = mouseX;
+                    this.targetY = mouseY;
+                } else {
+                    // 目標地点の半径10ピクセル以内に到着：慣性移動モードに切り替え
+                    this.inertiaMode = true;
+                }
             }
-            // 5ピクセル以内では現在の速度を維持して直進
+            // 慣性移動モード中は速度を維持（何もしない）
         } else {
             this.changeDirectionTimer++;
             if (this.changeDirectionTimer > 60) {
