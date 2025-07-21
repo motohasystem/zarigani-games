@@ -382,6 +382,19 @@ function checkCollision(zarigani, surume) {
     return distance < (clawRadius + surume.size / 2);
 }
 
+// 泡との衝突判定
+function checkBubbleCollision(zarigani, bubble) {
+    const dx = zarigani.x - bubble.x;
+    const dy = zarigani.y - bubble.y;
+    const distance = Math.hypot(dx, dy);
+    
+    // ザリガニの半径と泡の半径の合計より小さければ衝突
+    const zariganiRadius = zarigani.size * 0.5;
+    const bubbleRadius = bubble.size * 0.5;
+    
+    return distance < (zariganiRadius + bubbleRadius);
+}
+
 // 食べられるサイズかチェック
 function canEat(zariganiSize, surumeSize) {
     // ザリガニサイズの50%〜150%の範囲のスルメのみ食べられる
@@ -510,7 +523,28 @@ function updateAndDrawZariganis() {
             return false;
         }
         
-        // 衝突判定
+        // 泡との衝突判定
+        bubbles.forEach((bubble, bubbleIndex) => {
+            if (checkBubbleCollision(zarigani, bubble)) {
+                // 泡を消す
+                bubbles.splice(bubbleIndex, 1);
+                
+                // ランダムに方向変更
+                const randomAngle = Math.random() * Math.PI * 2;
+                const speed = Math.hypot(zarigani.vx, zarigani.vy);
+                zarigani.vx = Math.cos(randomAngle) * speed;
+                zarigani.vy = Math.sin(randomAngle) * speed;
+                zarigani.angle = randomAngle;
+                
+                // 泡破裂音を再生
+                playSound('hit');
+                
+                // 泡破裂エフェクト
+                createBubblePopEffect(bubble.x, bubble.y, bubble.size);
+            }
+        });
+
+        // スルメとの衝突判定
         surumes.forEach(surume => {
             if (surume.active && checkCollision(zarigani, surume)) {
                 // サイズ判定
@@ -613,6 +647,22 @@ function updateAndDrawEffects() {
             ctx.beginPath();
             ctx.arc(effect.x, effect.y, size * alpha, 0, Math.PI * 2);
             ctx.fill();
+        } else if (effect.type === 'bubble_pop') {
+            // 泡破裂エフェクト
+            effect.x += effect.vx;
+            effect.y += effect.vy;
+            effect.vx *= 0.95; // 減速
+            effect.vy *= 0.95;
+            
+            const size = effect.size * alpha;
+            
+            ctx.fillStyle = effect.color;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+            
+            ctx.beginPath();
+            ctx.arc(effect.x, effect.y, size, 0, Math.PI * 2);
+            ctx.fill();
         } else {
             // 通常のヒットエフェクト
             ctx.strokeStyle = '#FFD700';
@@ -653,6 +703,29 @@ function createHitEffect(x, y, size) {
     };
     
     effects.push(effect);
+}
+
+// 泡破裂エフェクト生成
+function createBubblePopEffect(x, y, size) {
+    // 小さな泡の破片エフェクトを複数生成
+    for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI * 2 * i) / 6;
+        const speed = size * 0.3;
+        
+        const effect = {
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: size * 0.3,
+            life: 20,
+            maxLife: 20,
+            type: 'bubble_pop',
+            color: 'rgba(255, 255, 255, 0.8)'
+        };
+        
+        effects.push(effect);
+    }
 }
 
 // サウンド再生
