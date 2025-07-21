@@ -521,7 +521,7 @@ function updateAndDrawZariganis() {
                     // コンボ計算
                     zarigani.combo++;
                     const multiplier = Math.pow(2, zarigani.combo - 1); // 1倍、2倍、4倍、8倍...
-                    const baseScore = Math.round(surume.size);
+                    const baseScore = 100; // 固定得点
                     const comboScore = baseScore * multiplier;
                     
                     score += comboScore;

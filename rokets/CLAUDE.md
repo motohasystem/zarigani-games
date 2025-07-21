@@ -6,29 +6,54 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 水中を舞台にしたシューティングゲーム。ザリガニを発射してスルメを狙い、制限時間内に高得点を目指す。
 
-## プロジェクト構成
+## 開発環境
 
-### ファイル構造
+### 起動方法
+```bash
+# Python HTTP Server
+python -m http.server 8000
+
+# Node.js Serve
+npx serve .
+
+# Live Server (VS Code Extension)
+# 右クリック > "Open with Live Server"
+```
+
+その後、ブラウザで `http://localhost:8000/rokets/` にアクセス。
+
+### プロジェクト構成
+
 ```
 rokets/
-├── index.html    # ゲームのHTMLファイル
-├── game.js       # メインゲームロジック
-├── sound.js      # Web Audio APIによる音響管理
-├── style.css     # スタイルシート
-└── resource/     # アセット（画像など）
+├── index.html     # ゲームのメインHTMLファイル
+├── game.js        # メインゲームロジック (860行)
+├── sound.js       # Web Audio APIによる音響管理 (265行)
+├── style.css      # スタイルシート (221行)
+├── interview.md   # ゲーム仕様のインタビュー記録
+└── resource/      # 画像アセット
+    ├── zarigani.png
+    ├── surume.png
+    └── surume_whole.png
 ```
 
-### 主要コンポーネント
+### アーキテクチャ
 
-**game.js**
-- `Game`クラス: ゲーム全体の管理（状態遷移、更新、描画）
-- `Zarigani`クラス: 発射されるザリガニの実装
-- `Surume`クラス: ターゲットとなるスルメの実装
-- 状態管理: menu → playing → gameOver
+**game.js - イベント駆動型アーキテクチャ**
+- **状態管理**: `GameState` enum (TITLE, PLAYING, RESULT)
+- **ゲームオブジェクト**: オブジェクトプールパターンで配列管理
+  - `zariganis[]`: 発射されたザリガニ
+  - `surumes[]`: ターゲットのスルメ
+  - `effects[]`: 視覚エフェクト
+  - `bubbles[]`: 背景の泡
+  - `comboTexts[]`: コンボ表示
+- **ゲームループ**: `requestAnimationFrame` による60fps更新
+- **入力処理**: マウス・タッチ両対応のドラッグ操作
 
-**sound.js**
-- `SoundManager`クラス: Web Audio APIを使用した音響効果
-- メソッド: `playLaunchSound()`, `playHitSound()`, `playBGM()`, `playTimeWarning()`
+**sound.js - Web Audio API実装**
+- `SoundManager`クラス: プロシージャル音響生成
+- メソッド: `play(soundName)` - 'shoot', 'hit', 'combo', 'miss', 'warning'
+- ユーザー操作後の初期化が必要（`soundManager.init()`）
 
 ## ゲーム仕様
 
@@ -44,58 +69,79 @@ rokets/
 - ザリガニが大きいほど速度が速く、多くのスルメを射抜ける
 - スルメは一度出現したら消えることなく画面上に蓄積される
 
-### 主要パラメータ
+### 重要な定数
 ```javascript
-// ゲーム設定
-const GAME_TIME = 20; // 制限時間（秒）
-
-// ザリガニ
-const MIN_ZARIGANI_SIZE = 2; // 最小サイズ
-const ZARIGANI_SPEED_MULTIPLIER = 0.2; // サイズに基づく速度係数
-
-// スルメ
-const MIN_SURUME_SIZE = 10;
-const MAX_SURUME_SIZE = 300;
-const SURUME_SPAWN_INTERVAL = 500; // 出現間隔（ミリ秒）
+// game.js:9-16 GAME_CONFIG オブジェクト
+const GAME_CONFIG = {
+    GAME_TIME: 20,              // 制限時間（秒）
+    SURUME_SPAWN_INTERVAL: 500, // スルメ出現間隔（ミリ秒）
+    SURUME_MIN_SIZE: 10,        // スルメ最小サイズ
+    SURUME_MAX_SIZE: 300,       // スルメ最大サイズ
+    ZARIGANI_MIN_SIZE: 2,       // ザリガニ最小サイズ
+    CANVAS_PADDING: 50          // キャンバス端からの余白
+};
 ```
 
-## 開発環境
+## コアゲームメカニクス
 
-### 起動方法
-```bash
-# Python
-python -m http.server 8000
+### ザリガニ発射システム
+- **ドラッグ操作**: 距離が発射力とサイズを決定
+- **発射方向**: ドラッグと逆方向に発射（`angle = Math.atan2(-dy, -dx)`）
+- **速度計算**: `speed = size * 0.3`
+- **ハサミ判定**: 進行方向前方80%位置でスルメとの衝突判定
 
-# Node.js
-npx serve .
+### サイズベース食事システム
+- **食べられる条件**: `canEat(zariganiSize, surumeSize)` in game.js:386-392
+- **許容範囲**: ザリガニサイズの50%〜150%のスルメのみ食べられる
+- **コンボシステム**: 連続ヒットで倍率増加（1倍→2倍→4倍→8倍...）
+
+### ビジュアルフィードバック
+- **ドラッグプレビュー**: 食べられるサイズ範囲を緑の円で表示
+- **透明度制御**: 食べられないスルメは半透明（0.3）、食べられるものは不透明（1.0）
+- **ミスエフェクト**: "Too Small!" または "Too Big!" テキスト表示
+
+## 技術実装詳細
+
+### キャンバス描画システム
+- **レスポンシブサイズ**: ゲーム開始時に動的リサイズ（game.js:160-166）
+- **画像フォールバック**: PNG画像未読み込み時は色付き矩形で代替描画
+- **座標変換**: `ctx.translate()` + `ctx.rotate()` で回転描画
+
+### 衝突判定アルゴリズム
+```javascript
+// game.js:368-383 checkCollision関数
+// ザリガニのハサミ位置計算
+const clawX = zarigani.x + Math.cos(zarigani.angle) * clawOffset;
+const clawY = zarigani.y + Math.sin(zarigani.angle) * clawOffset;
+// 距離ベース円形判定
+const distance = Math.hypot(clawX - surume.x, clawY - surume.y);
+return distance < (clawRadius + surume.size / 2);
 ```
-
-その後、ブラウザで `http://localhost:8000/rokets/` にアクセス。
-
-### デバッグ
-- ブラウザの開発者ツールでコンソールログを確認
-- `game.js`内の`console.log`文でゲーム状態を監視
-
-## アーキテクチャ
-
-### ゲームループ
-1. `update()`: ゲーム状態の更新（60fps）
-2. `draw()`: Canvas描画
-3. `requestAnimationFrame`による連続実行
-
-### 状態管理
-- `gameState`: 'menu', 'playing', 'gameOver'
-- 各状態で異なる更新・描画処理を実行
-
-### 衝突判定
-- 円形の当たり判定（ザリガニとスルメ両方）
-- 距離計算による単純な判定
 
 ### データ永続化
-- ハイスコアは`localStorage`に保存
-- キー: `zariganiShootingHighScore`
+- **ハイスコア**: `localStorage` キー `'zariganiHighScore'`
+- **保存タイミング**: 新記録達成時のみ
+- **読み込み**: ページロード時に `loadHighScore()` 実行
 
-## 注意事項
-- タッチイベントとマウスイベントの両方に対応
-- ゲーム終了時にザリガニの状態をリセット
-- スルメの吸い込みアニメーションは`shrinkRate`で制御
+## デバッグ・テスト
+
+### 開発者ツール活用
+```javascript
+// 主要なログ出力ポイント
+console.log('Canvas resized to:', canvas.width, 'x', canvas.height); // game.js:165
+console.log('Images loaded successfully'); // game.js:249
+```
+
+### 重要な動作確認項目
+1. **画像読み込み**: リソースフォルダの PNG ファイル
+2. **サウンド初期化**: ユーザー操作後の Web Audio API 開始
+3. **タッチ操作**: モバイルデバイスでのドラッグ操作
+4. **ゲーム状態遷移**: TITLE → PLAYING → RESULT
+
+## トラブルシューティング
+
+### よくある問題
+- **音が鳴らない**: `soundManager.init()` がユーザー操作前に呼ばれている
+- **画像が表示されない**: `resource/` フォルダのパス確認、HTTPサーバー必須
+- **タッチ操作不具合**: `touch-action: none` スタイルが適用されているか確認
+- **Canvas サイズ**: ゲーム開始時の動的リサイズタイミング
