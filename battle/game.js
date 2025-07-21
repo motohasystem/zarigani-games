@@ -15,6 +15,7 @@ class ZariganiGrowthGame {
         this.enemies = [];
         this.camera = { x: 0, y: 0, scale: 1 };
         this.mouse = { x: 0, y: 0 };
+        this.lastValidMouse = { x: 0, y: 0 };  // 最後に有効だったマウス位置
         
         this.gameLoop = null;
         this.audioContext = null;
@@ -24,6 +25,10 @@ class ZariganiGrowthGame {
         this.lastEatTime = 0;
         this.currentMapScale = 10;
         this.targetMapScale = 10;
+        
+        // デバッグ用
+        this.debugMode = false;
+        this.lastMouseUpdate = Date.now();
         
         this.initializeAudio();
         this.initializeEventListeners();
@@ -108,14 +113,66 @@ class ZariganiGrowthGame {
             this.showMenu();
         });
         
-        this.canvas.addEventListener('mousemove', (e) => {
+        // デバッグモード切り替え（Dキー）
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'd' || e.key === 'D') {
+                this.debugMode = !this.debugMode;
+                const debugInfo = document.getElementById('debugInfo');
+                if (debugInfo) {
+                    debugInfo.style.display = this.debugMode ? 'block' : 'none';
+                }
+                console.log(`Debug mode: ${this.debugMode ? 'ON' : 'OFF'}`);
+            }
+        });
+        
+        const updateMousePosition = (clientX, clientY) => {
             const rect = this.canvas.getBoundingClientRect();
-            this.mouse.x = (e.clientX - rect.left) / this.camera.scale + this.camera.x;
-            this.mouse.y = (e.clientY - rect.top) / this.camera.scale + this.camera.y;
+            const canvasX = clientX - rect.left;
+            const canvasY = clientY - rect.top;
+            
+            // カメラのスケールと位置を考慮してワールド座標に変換
+            this.mouse.x = canvasX / this.camera.scale + this.camera.x;
+            this.mouse.y = canvasY / this.camera.scale + this.camera.y;
             
             // マウス座標を世界の境界内に制限
             this.mouse.x = Math.max(0, Math.min(this.worldSize, this.mouse.x));
             this.mouse.y = Math.max(0, Math.min(this.worldSize, this.mouse.y));
+            
+            // 有効なマウス位置を保存
+            this.lastValidMouse.x = this.mouse.x;
+            this.lastValidMouse.y = this.mouse.y;
+            
+            // デバッグ用：最後の更新時刻を記録
+            this.lastMouseUpdate = Date.now();
+            
+            console.log(`Mouse updated: Canvas(${canvasX.toFixed(0)}, ${canvasY.toFixed(0)}) -> World(${this.mouse.x.toFixed(0)}, ${this.mouse.y.toFixed(0)})`);
+        };
+        
+        this.canvas.addEventListener('mousemove', (e) => {
+            if (this.gameState === 'playing') {
+                updateMousePosition(e.clientX, e.clientY);
+            }
+        });
+        
+        this.canvas.addEventListener('mouseenter', (e) => {
+            if (this.gameState === 'playing') {
+                updateMousePosition(e.clientX, e.clientY);
+            }
+        });
+        
+        // タッチデバイス対応
+        this.canvas.addEventListener('touchmove', (e) => {
+            if (this.gameState === 'playing' && e.touches.length > 0) {
+                e.preventDefault();
+                updateMousePosition(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        });
+        
+        this.canvas.addEventListener('touchstart', (e) => {
+            if (this.gameState === 'playing' && e.touches.length > 0) {
+                e.preventDefault();
+                updateMousePosition(e.touches[0].clientX, e.touches[0].clientY);
+            }
         });
     }
     
@@ -125,7 +182,18 @@ class ZariganiGrowthGame {
         this.timeLeft = 60;
         this.playerLife = 3;
         
-        this.player = new Zarigani(this.worldSize / 2, this.worldSize / 2, 20, true);
+        // プレイヤーを中心に配置
+        const centerX = this.worldSize / 2;
+        const centerY = this.worldSize / 2;
+        this.player = new Zarigani(centerX, centerY, 20, true);
+        
+        // マウス位置を初期化（プレイヤーの初期位置に設定）
+        this.mouse.x = centerX;
+        this.mouse.y = centerY;
+        this.lastValidMouse.x = centerX;
+        this.lastValidMouse.y = centerY;
+        this.lastMouseUpdate = Date.now();
+        
         this.enemies = [];
         this.lastEatTime = Date.now();
         this.currentMapScale = 10;
@@ -186,7 +254,13 @@ class ZariganiGrowthGame {
     update() {
         if (this.gameState !== 'playing') return;
         
-        this.player.update(this.mouse.x, this.mouse.y);
+        // 常に最後の有効なマウス位置に向かって移動
+        this.player.update(this.lastValidMouse.x, this.lastValidMouse.y);
+        
+        // デバッグ情報を更新
+        if (this.debugMode) {
+            this.updateDebugInfo();
+        }
         
         this.enemies.forEach(enemy => {
             enemy.update();
@@ -623,6 +697,25 @@ class ZariganiGrowthGame {
             document.getElementById('sizeDisplay').innerHTML = `サイズ: <span id="sizeValue">${displaySize}</span>${unit}`;
         }
     }
+    
+    updateDebugInfo() {
+        const now = Date.now();
+        const timeSinceLastUpdate = now - this.lastMouseUpdate;
+        
+        document.getElementById('mousePos').textContent = `${this.mouse.x.toFixed(0)}, ${this.mouse.y.toFixed(0)}`;
+        document.getElementById('playerPos').textContent = `${this.player.x.toFixed(0)}, ${this.player.y.toFixed(0)}`;
+        
+        const speed = Math.sqrt(this.player.vx * this.player.vx + this.player.vy * this.player.vy);
+        document.getElementById('playerSpeed').textContent = speed.toFixed(2);
+        
+        document.getElementById('cameraInfo').textContent = `${this.camera.x.toFixed(0)}, ${this.camera.y.toFixed(0)} scale:${this.camera.scale.toFixed(2)}`;
+        document.getElementById('lastUpdate').textContent = timeSinceLastUpdate.toString();
+        
+        // 長時間マウスが更新されていない場合は警告
+        if (timeSinceLastUpdate > 1000) {
+            console.warn(`Mouse hasn't been updated for ${timeSinceLastUpdate}ms`);
+        }
+    }
 }
 
 class Zarigani {
@@ -639,11 +732,21 @@ class Zarigani {
         this.direction = Math.random() * Math.PI * 2;
         this.changeDirectionTimer = 0;
         this.color = isPlayer ? '#ff4444' : this.getRandomColor();
+        this.lastTargetX = x;
+        this.lastTargetY = y;
     }
     
     getRandomColor() {
         const colors = ['#ff6666', '#ff9966', '#ffcc66', '#66ff66', '#6666ff', '#ff66ff'];
         return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    stop() {
+        if (this.isPlayer) {
+            // 即座に停止
+            this.vx = 0;
+            this.vy = 0;
+        }
     }
     
     update(mouseX, mouseY) {
@@ -652,13 +755,12 @@ class Zarigani {
             const dy = mouseY - this.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
+            // マウスに向かって移動（常に追従）
             if (distance > 5) {
                 this.vx = (dx / distance) * this.speed;
                 this.vy = (dy / distance) * this.speed;
-            } else {
-                this.vx *= 0.9;
-                this.vy *= 0.9;
             }
+            // 5ピクセル以内では現在の速度を維持して直進
         } else {
             this.changeDirectionTimer++;
             if (this.changeDirectionTimer > 60) {
