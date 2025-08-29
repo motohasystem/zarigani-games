@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>アイテムと障害物スプライト作成</title>
+</head>
+<body>
+    <h2>回復アイテム（ポーション）</h2>
+    <canvas id="potionCanvas" width="64" height="64"></canvas>
+    <br>
+    
+    <h2>壁（石壁）</h2>
+    <canvas id="wallCanvas" width="40" height="40"></canvas>
+    <br>
+    
+    <h2>岩（障害物）</h2>
+    <canvas id="rockCanvas" width="40" height="40"></canvas>
+    
+    <script>
+        // 回復ポーションを描画
+        const potionCanvas = document.getElementById('potionCanvas');
+        const pCtx = potionCanvas.getContext('2d');
+        
+        // ポーションの瓶
+        pCtx.fillStyle = '#4a90e2';
+        pCtx.beginPath();
+        // ボトル本体
+        pCtx.ellipse(32, 38, 14, 18, 0, 0, Math.PI * 2);
+        pCtx.fill();
+        
+        // ガラスの光沢
+        pCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        pCtx.beginPath();
+        pCtx.ellipse(28, 35, 6, 10, -0.3, 0, Math.PI * 2);
+        pCtx.fill();
+        
+        // ボトルネック
+        pCtx.fillStyle = '#4a90e2';
+        pCtx.fillRect(28, 18, 8, 12);
+        
+        // コルク栓
+        pCtx.fillStyle = '#8b6b47';
+        pCtx.fillRect(26, 14, 12, 8);
+        pCtx.fillStyle = '#6b5637';
+        pCtx.fillRect(26, 18, 12, 2);
+        
+        // 中身の液体
+        pCtx.fillStyle = '#ff4444';
+        pCtx.beginPath();
+        pCtx.ellipse(32, 42, 10, 8, 0, 0, Math.PI);
+        pCtx.fill();
+        
+        // ラベル
+        pCtx.fillStyle = '#fff';
+        pCtx.fillRect(27, 34, 10, 8);
+        pCtx.fillStyle = '#ff0000';
+        pCtx.font = 'bold 8px Arial';
+        pCtx.fillText('+', 30, 40);
+        
+        // キラキラエフェクト
+        pCtx.fillStyle = '#ffff00';
+        pCtx.beginPath();
+        pCtx.arc(20, 25, 2, 0, Math.PI * 2);
+        pCtx.arc(44, 30, 2, 0, Math.PI * 2);
+        pCtx.arc(38, 50, 2, 0, Math.PI * 2);
+        pCtx.fill();
+        
+        // 壁（石壁）を描画
+        const wallCanvas = document.getElementById('wallCanvas');
+        const wCtx = wallCanvas.getContext('2d');
+        
+        // ベースの石壁
+        wCtx.fillStyle = '#5a5a5a';
+        wCtx.fillRect(0, 0, 40, 40);
+        
+        // 石のブロックパターン
+        wCtx.strokeStyle = '#404040';
+        wCtx.lineWidth = 2;
+        
+        // 横線
+        wCtx.beginPath();
+        wCtx.moveTo(0, 13);
+        wCtx.lineTo(40, 13);
+        wCtx.moveTo(0, 27);
+        wCtx.lineTo(40, 27);
+        wCtx.stroke();
+        
+        // 縦線（段違い）
+        wCtx.beginPath();
+        wCtx.moveTo(10, 0);
+        wCtx.lineTo(10, 13);
+        wCtx.moveTo(30, 0);
+        wCtx.lineTo(30, 13);
+        wCtx.moveTo(20, 13);
+        wCtx.lineTo(20, 27);
+        wCtx.moveTo(10, 27);
+        wCtx.lineTo(10, 40);
+        wCtx.moveTo(30, 27);
+        wCtx.lineTo(30, 40);
+        wCtx.stroke();
+        
+        // 影とハイライト
+        wCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        wCtx.fillRect(0, 0, 2, 40);
+        wCtx.fillRect(0, 0, 40, 2);
+        
+        wCtx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        wCtx.fillRect(38, 0, 2, 40);
+        wCtx.fillRect(0, 38, 40, 2);
+        
+        // ひび割れ
+        wCtx.strokeStyle = '#333';
+        wCtx.lineWidth = 1;
+        wCtx.beginPath();
+        wCtx.moveTo(15, 5);
+        wCtx.lineTo(18, 8);
+        wCtx.lineTo(16, 11);
+        wCtx.stroke();
+        
+        // 岩（障害物）を描画
+        const rockCanvas = document.getElementById('rockCanvas');
+        const rCtx = rockCanvas.getContext('2d');
+        
+        // 岩の本体（不規則な形）
+        rCtx.fillStyle = '#7a7a7a';
+        rCtx.beginPath();
+        rCtx.moveTo(8, 35);
+        rCtx.quadraticCurveTo(5, 25, 10, 15);
+        rCtx.quadraticCurveTo(15, 8, 25, 10);
+        rCtx.quadraticCurveTo(35, 12, 35, 25);
+        rCtx.quadraticCurveTo(33, 35, 25, 35);
+        rCtx.quadraticCurveTo(15, 36, 8, 35);
+        rCtx.closePath();
+        rCtx.fill();
+        
+        // 岩の暗い部分
+        rCtx.fillStyle = '#5a5a5a';
+        rCtx.beginPath();
+        rCtx.moveTo(8, 35);
+        rCtx.quadraticCurveTo(10, 28, 15, 25);
+        rCtx.lineTo(25, 28);
+        rCtx.quadraticCurveTo(33, 35, 25, 35);
+        rCtx.quadraticCurveTo(15, 36, 8, 35);
+        rCtx.closePath();
+        rCtx.fill();
+        
+        // ハイライト
+        rCtx.fillStyle = '#9a9a9a';
+        rCtx.beginPath();
+        rCtx.ellipse(18, 18, 6, 4, -0.3, 0, Math.PI * 2);
+        rCtx.fill();
+        
+        // 苔
+        rCtx.fillStyle = 'rgba(100, 150, 80, 0.4)';
+        rCtx.beginPath();
+        rCtx.ellipse(12, 30, 4, 3, 0.2, 0, Math.PI * 2);
+        rCtx.ellipse(28, 32, 3, 2, -0.2, 0, Math.PI * 2);
+        rCtx.fill();
+        
+        // 小石
+        rCtx.fillStyle = '#6a6a6a';
+        rCtx.beginPath();
+        rCtx.arc(35, 35, 2, 0, Math.PI * 2);
+        rCtx.arc(5, 36, 1.5, 0, Math.PI * 2);
+        rCtx.fill();
+        
+        // 画像をダウンロード可能にする
+        document.getElementById('potionCanvas').title = 'potion.png として保存';
+        document.getElementById('wallCanvas').title = 'wall.png として保存';
+        document.getElementById('rockCanvas').title = 'rock.png として保存';
+    </script>
+    
+    <p>各キャンバスを右クリックして「画像を保存」でPNG画像として保存できます。</p>
+    <p>保存先：resource/potion.png, resource/wall.png, resource/rock.png</p>
+</body>
+</html>

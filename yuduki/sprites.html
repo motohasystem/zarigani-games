@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スプライト作成</title>
+</head>
+<body>
+    <h2>ユヅキ（プレイヤー）</h2>
+    <canvas id="playerCanvas" width="64" height="64"></canvas>
+    <br>
+    
+    <h2>ゴブリン（通常）</h2>
+    <canvas id="goblinCanvas" width="64" height="64"></canvas>
+    <br>
+    
+    <h2>ボスゴブリン</h2>
+    <canvas id="bossCanvas" width="128" height="128"></canvas>
+    
+    <script>
+        // ユヅキ（プレイヤー）を描画
+        const playerCanvas = document.getElementById('playerCanvas');
+        const pCtx = playerCanvas.getContext('2d');
+        
+        // 頭
+        pCtx.fillStyle = '#fdbcb4';
+        pCtx.beginPath();
+        pCtx.arc(32, 20, 12, 0, Math.PI * 2);
+        pCtx.fill();
+        
+        // 髪
+        pCtx.fillStyle = '#4a3428';
+        pCtx.beginPath();
+        pCtx.arc(32, 18, 13, Math.PI, 0, false);
+        pCtx.fill();
+        pCtx.fillRect(19, 18, 26, 8);
+        
+        // 目
+        pCtx.fillStyle = '#000';
+        pCtx.beginPath();
+        pCtx.arc(28, 20, 2, 0, Math.PI * 2);
+        pCtx.arc(36, 20, 2, 0, Math.PI * 2);
+        pCtx.fill();
+        
+        // 体
+        pCtx.fillStyle = '#4169e1';
+        pCtx.fillRect(26, 30, 12, 18);
+        
+        // 腕
+        pCtx.fillStyle = '#fdbcb4';
+        pCtx.fillRect(22, 32, 4, 12);
+        pCtx.fillRect(38, 32, 4, 12);
+        
+        // 剣
+        pCtx.fillStyle = '#c0c0c0';
+        pCtx.fillRect(42, 28, 3, 20);
+        pCtx.fillStyle = '#8b4513';
+        pCtx.fillRect(41, 48, 5, 4);
+        
+        // 足
+        pCtx.fillStyle = '#8b4513';
+        pCtx.fillRect(28, 48, 4, 8);
+        pCtx.fillRect(34, 48, 4, 8);
+        
+        // ゴブリン（通常）を描画
+        const goblinCanvas = document.getElementById('goblinCanvas');
+        const gCtx = goblinCanvas.getContext('2d');
+        
+        // 頭
+        gCtx.fillStyle = '#7a8b3a';
+        gCtx.beginPath();
+        gCtx.arc(32, 22, 14, 0, Math.PI * 2);
+        gCtx.fill();
+        
+        // 耳
+        gCtx.beginPath();
+        gCtx.moveTo(18, 20);
+        gCtx.lineTo(12, 16);
+        gCtx.lineTo(16, 24);
+        gCtx.closePath();
+        gCtx.fill();
+        gCtx.beginPath();
+        gCtx.moveTo(46, 20);
+        gCtx.lineTo(52, 16);
+        gCtx.lineTo(48, 24);
+        gCtx.closePath();
+        gCtx.fill();
+        
+        // 目（赤く光る）
+        gCtx.fillStyle = '#ff0000';
+        gCtx.beginPath();
+        gCtx.arc(27, 22, 3, 0, Math.PI * 2);
+        gCtx.arc(37, 22, 3, 0, Math.PI * 2);
+        gCtx.fill();
+        
+        // 口と牙
+        gCtx.strokeStyle = '#000';
+        gCtx.lineWidth = 2;
+        gCtx.beginPath();
+        gCtx.arc(32, 26, 6, 0, Math.PI);
+        gCtx.stroke();
+        
+        gCtx.fillStyle = '#fff';
+        gCtx.beginPath();
+        gCtx.moveTo(28, 26);
+        gCtx.lineTo(29, 30);
+        gCtx.lineTo(30, 26);
+        gCtx.closePath();
+        gCtx.fill();
+        gCtx.beginPath();
+        gCtx.moveTo(34, 26);
+        gCtx.lineTo(35, 30);
+        gCtx.lineTo(36, 26);
+        gCtx.closePath();
+        gCtx.fill();
+        
+        // 体
+        gCtx.fillStyle = '#5a6b2a';
+        gCtx.fillRect(26, 34, 12, 16);
+        
+        // 腕（筋肉質）
+        gCtx.fillStyle = '#7a8b3a';
+        gCtx.beginPath();
+        gCtx.ellipse(22, 38, 5, 8, 0, 0, Math.PI * 2);
+        gCtx.ellipse(42, 38, 5, 8, 0, 0, Math.PI * 2);
+        gCtx.fill();
+        
+        // 武器を持つ手
+        gCtx.fillStyle = '#8b4513';
+        gCtx.fillRect(44, 40, 8, 3);
+        
+        // 足
+        gCtx.fillStyle = '#5a6b2a';
+        gCtx.fillRect(28, 50, 5, 8);
+        gCtx.fillRect(33, 50, 5, 8);
+        
+        // ボスゴブリンを描画
+        const bossCanvas = document.getElementById('bossCanvas');
+        const bCtx = bossCanvas.getContext('2d');
+        
+        // 瘴気のオーラ
+        bCtx.fillStyle = 'rgba(139, 0, 139, 0.3)';
+        bCtx.beginPath();
+        bCtx.arc(64, 64, 60, 0, Math.PI * 2);
+        bCtx.fill();
+        
+        bCtx.fillStyle = 'rgba(75, 0, 130, 0.2)';
+        bCtx.beginPath();
+        bCtx.arc(64, 64, 50, 0, Math.PI * 2);
+        bCtx.fill();
+        
+        // 巨大な頭
+        bCtx.fillStyle = '#4a5b2a';
+        bCtx.beginPath();
+        bCtx.arc(64, 40, 28, 0, Math.PI * 2);
+        bCtx.fill();
+        
+        // 角
+        bCtx.fillStyle = '#333';
+        bCtx.beginPath();
+        bCtx.moveTo(50, 30);
+        bCtx.lineTo(45, 15);
+        bCtx.lineTo(52, 35);
+        bCtx.closePath();
+        bCtx.fill();
+        bCtx.beginPath();
+        bCtx.moveTo(78, 30);
+        bCtx.lineTo(83, 15);
+        bCtx.lineTo(76, 35);
+        bCtx.closePath();
+        bCtx.fill();
+        
+        // 巨大な耳
+        bCtx.fillStyle = '#4a5b2a';
+        bCtx.beginPath();
+        bCtx.moveTo(36, 38);
+        bCtx.lineTo(24, 32);
+        bCtx.lineTo(32, 46);
+        bCtx.closePath();
+        bCtx.fill();
+        bCtx.beginPath();
+        bCtx.moveTo(92, 38);
+        bCtx.lineTo(104, 32);
+        bCtx.lineTo(96, 46);
+        bCtx.closePath();
+        bCtx.fill();
+        
+        // 光る目
+        bCtx.fillStyle = '#ff00ff';
+        bCtx.shadowColor = '#ff00ff';
+        bCtx.shadowBlur = 10;
+        bCtx.beginPath();
+        bCtx.arc(54, 40, 5, 0, Math.PI * 2);
+        bCtx.arc(74, 40, 5, 0, Math.PI * 2);
+        bCtx.fill();
+        bCtx.shadowBlur = 0;
+        
+        // 大きな口と牙
+        bCtx.strokeStyle = '#000';
+        bCtx.lineWidth = 3;
+        bCtx.beginPath();
+        bCtx.arc(64, 48, 12, 0, Math.PI);
+        bCtx.stroke();
+        
+        bCtx.fillStyle = '#fff';
+        bCtx.beginPath();
+        bCtx.moveTo(56, 48);
+        bCtx.lineTo(58, 56);
+        bCtx.lineTo(60, 48);
+        bCtx.closePath();
+        bCtx.fill();
+        bCtx.beginPath();
+        bCtx.moveTo(68, 48);
+        bCtx.lineTo(70, 56);
+        bCtx.lineTo(72, 48);
+        bCtx.closePath();
+        bCtx.fill();
+        
+        // 筋肉質な体
+        bCtx.fillStyle = '#3a4b1a';
+        bCtx.fillRect(50, 65, 28, 30);
+        
+        // 巨大な腕
+        bCtx.fillStyle = '#4a5b2a';
+        bCtx.beginPath();
+        bCtx.ellipse(40, 75, 12, 18, -0.2, 0, Math.PI * 2);
+        bCtx.ellipse(88, 75, 12, 18, 0.2, 0, Math.PI * 2);
+        bCtx.fill();
+        
+        // こぶし
+        bCtx.fillStyle = '#3a4b1a';
+        bCtx.beginPath();
+        bCtx.arc(38, 90, 8, 0, Math.PI * 2);
+        bCtx.arc(90, 90, 8, 0, Math.PI * 2);
+        bCtx.fill();
+        
+        // 足
+        bCtx.fillStyle = '#3a4b1a';
+        bCtx.fillRect(54, 95, 8, 15);
+        bCtx.fillRect(66, 95, 8, 15);
+        
+        // 画像をダウンロード可能にする
+        function downloadCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // 右クリックで保存できるようにする
+        document.getElementById('playerCanvas').title = 'player.png として保存';
+        document.getElementById('goblinCanvas').title = 'goblin.png として保存';
+        document.getElementById('bossCanvas').title = 'boss.png として保存';
+    </script>
+    
+    <p>各キャンバスを右クリックして「画像を保存」でPNG画像として保存できます。</p>
+</body>
+</html>

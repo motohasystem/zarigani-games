@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ゴブリンアドベンチャー</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                background: #1a1a1a;
+                font-family: Arial, sans-serif;
+            }
+            #gameContainer {
+                position: relative;
+            }
+            canvas {
+                border: 2px solid #444;
+                cursor: crosshair;
+            }
+            #ui {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                color: white;
+                font-size: 18px;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            }
+            #hpBar {
+                width: 200px;
+                height: 20px;
+                background: #333;
+                border: 2px solid #555;
+                margin-top: 5px;
+            }
+            #hpFill {
+                height: 100%;
+                background: linear-gradient(90deg, #ff3333, #ff6666);
+                transition: width 0.3s;
+            }
+            #gameOver,
+            #victory {
+                position: absolute;
+                top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: white;
+                font-size: 48px;
+                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+                display: none;
+                text-align: center;
+            }
+            #victory {
+                color: #ffdd00;
+            }
+            #startScreen {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            #startScreen h1 {
+                color: #ffdd00;
+                font-size: 48px;
+                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+                margin-bottom: 20px;
+            }
+            #startScreen p {
+                color: #ccc;
+                font-size: 18px;
+                margin-bottom: 30px;
+            }
+            .gameButton {
+                padding: 15px 40px;
+                font-size: 24px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            .gameButton:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+            }
+            .gameButton:active {
+                transform: translateY(0);
+            }
+            #retryButton, #victoryRetryButton {
+                position: absolute;
+                top: 60%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                display: none;
+            }
+            #instructions {
+                position: absolute;
+                bottom: 10px;
+                left: 10px;
+                color: #ccc;
+                font-size: 14px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="gameContainer">
+            <canvas id="gameCanvas"></canvas>
+            <div id="ui">
+                <div>HP: <span id="hpText">100</span>/<span id="maxHpText">100</span></div>
+                <div id="hpBar">
+                    <div id="hpFill" style="width: 100%"></div>
+                </div>
+                <div style="margin-top: 10px">Level: <span id="levelText">1</span></div>
+                <div>EXP: <span id="expText">0/3</span></div>
+                <div style="margin-top: 10px">敵: <span id="enemyCount">0</span></div>
+            </div>
+            <div id="startScreen">
+                <h1>ゴブリンアドベンチャー</h1>
+                <p>ユヅキの冒険が今始まる！</p>
+                <button id="startButton" class="gameButton">ゲームスタート</button>
+            </div>
+            <div id="gameOver">
+                GAME OVER
+            </div>
+            <button id="retryButton" class="gameButton">もう一度挑戦</button>
+            <div id="victory">
+                VICTORY!
+            </div>
+            <button id="victoryRetryButton" class="gameButton">もう一度遊ぶ</button>
+            <div id="instructions">WASD: 移動 | マウス: 攻撃</div>
+        </div>
+        
+        <!-- 効果音用のオーディオ要素 -->
+        <audio id="attackSound" preload="auto">
+            <source src="resource/attack.mp3" type="audio/mpeg">
+            <source src="resource/attack.ogg" type="audio/ogg">
+        </audio>
+        <audio id="damageSound" preload="auto">
+            <source src="resource/damage.mp3" type="audio/mpeg">
+            <source src="resource/damage.ogg" type="audio/ogg">
+        </audio>
+        <audio id="healSound" preload="auto">
+            <source src="resource/heal.mp3" type="audio/mpeg">
+            <source src="resource/heal.ogg" type="audio/ogg">
+        </audio>
+        <audio id="enemyHitSound" preload="auto">
+            <source src="resource/enemy_hit.mp3" type="audio/mpeg">
+            <source src="resource/enemy_hit.ogg" type="audio/ogg">
+        </audio>
+        <audio id="bgmSound" loop preload="auto">
+            <source src="resource/bgm.mp3" type="audio/mpeg">
+            <source src="resource/bgm.ogg" type="audio/ogg">
+        </audio>
+        <audio id="victorySound" preload="auto">
+            <source src="resource/victory.mp3" type="audio/mpeg">
+            <source src="resource/victory.ogg" type="audio/ogg">
+        </audio>
+        <audio id="gameOverSound" preload="auto">
+            <source src="resource/game_over.mp3" type="audio/mpeg">
+            <source src="resource/game_over.ogg" type="audio/ogg">
+        </audio>
+        <audio id="levelUpSound" preload="auto">
+            <source src="resource/level_up.mp3" type="audio/mpeg">
+            <source src="resource/level_up.ogg" type="audio/ogg">
+        </audio>
+        
+        <!-- スプライト版を使う場合は game-with-sprites.js に変更 -->
+        <script src="game-with-sprites.js"></script>
+        <!-- <script src="game-with-sprites.js"></script> -->
+    </body>
+</html>
