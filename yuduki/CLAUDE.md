@@ -79,10 +79,31 @@ This is "ゴブリンアドベンチャー" (Goblin Adventure), a top-view HTML5
 - `wall.png`: Stone wall obstacles
 - `rock.png`: Rock obstacles
 
-### Controls
+### Cross-Platform Input System
+The game supports both desktop and mobile platforms with automatic detection:
+
+#### Desktop Controls
 - **WASD**: Player movement
 - **Mouse click**: Attack nearest enemy within range
-- Attack has cooldown and visual arc effect that becomes more elaborate with level progression
+
+#### Mobile/Touch Controls  
+- **Drag**: Move in the direction of finger drag
+- **Tap**: Attack (sword swing)
+- Touch detection threshold: 20px movement to register as drag vs tap
+- Tap timing threshold: 200ms or less for attack recognition
+
+#### Input Architecture
+- `keys` object: Tracks WASD key states
+- `touch` object: Manages touch state (position, timing, movement)
+- `isMobile` detection: Automatic device detection based on user agent and screen width
+- Unified input handling in `updatePlayer()` function combines keyboard and touch input
+- Touch events registered with `passive: false` to prevent default browser behaviors
+
+### Responsive Design
+- **Viewport scaling**: Full viewport usage on mobile devices
+- **Touch optimization**: `touch-action: none` prevents scrolling/zooming
+- **UI scaling**: Dynamic font sizes and button scaling for mobile
+- **Control display**: Automatic switching between desktop/mobile instruction text
 
 ## Development Notes
 

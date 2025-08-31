@@ -118,6 +118,21 @@ const keys = {
     d: false
 };
 
+// タッチ操作システム
+const touch = {
+    isActive: false,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    currentY: 0,
+    startTime: 0,
+    isMoving: false,
+    moveDirection: { x: 0, y: 0 }
+};
+
+// デバイス検知
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
 const enemies = [];
 const projectiles = [];
 const items = [];
@@ -594,6 +609,8 @@ function updatePlayer() {
     }
 
     let dx = 0, dy = 0;
+    
+    // キーボード操作
     if (keys.w) dy = -player.speed;
     if (keys.s) dy = player.speed;
     if (keys.a) {
@@ -603,6 +620,19 @@ function updatePlayer() {
     if (keys.d) {
         dx = player.speed;
         player.facing = 'right';
+    }
+    
+    // タッチ操作
+    if (touch.isActive && touch.isMoving) {
+        dx += touch.moveDirection.x * player.speed;
+        dy += touch.moveDirection.y * player.speed;
+        
+        // 向きを更新
+        if (touch.moveDirection.x > 0.1) {
+            player.facing = 'right';
+        } else if (touch.moveDirection.x < -0.1) {
+            player.facing = 'left';
+        }
     }
 
     if (dx !== 0 && dy !== 0) {
@@ -944,10 +974,77 @@ document.addEventListener('keyup', (e) => {
     }
 });
 
+// マウスイベント
 canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
     attack(e.clientX - rect.left, e.clientY - rect.top);
 });
+
+// タッデイベント
+function handleTouchStart(e) {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touchObj = e.touches[0];
+    
+    touch.isActive = true;
+    touch.startX = touchObj.clientX - rect.left;
+    touch.startY = touchObj.clientY - rect.top;
+    touch.currentX = touch.startX;
+    touch.currentY = touch.startY;
+    touch.startTime = Date.now();
+    touch.isMoving = false;
+    touch.moveDirection = { x: 0, y: 0 };
+}
+
+function handleTouchMove(e) {
+    e.preventDefault();
+    if (!touch.isActive) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const touchObj = e.touches[0];
+    
+    touch.currentX = touchObj.clientX - rect.left;
+    touch.currentY = touchObj.clientY - rect.top;
+    
+    const deltaX = touch.currentX - touch.startX;
+    const deltaY = touch.currentY - touch.startY;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    
+    // 移動闾値（ピクセル）
+    const MOVE_THRESHOLD = 20;
+    
+    if (distance > MOVE_THRESHOLD) {
+        touch.isMoving = true;
+        
+        // 移動方向を正規化
+        touch.moveDirection.x = deltaX / distance;
+        touch.moveDirection.y = deltaY / distance;
+    }
+}
+
+function handleTouchEnd(e) {
+    e.preventDefault();
+    if (!touch.isActive) return;
+    
+    const touchDuration = Date.now() - touch.startTime;
+    const TAP_THRESHOLD = 200; // 200ms以内でタップと判定
+    
+    // 短時間のタッチで移動していない = 攻撃
+    if (touchDuration < TAP_THRESHOLD && !touch.isMoving) {
+        attack(touch.startX, touch.startY);
+    }
+    
+    // タッチ状態をリセット
+    touch.isActive = false;
+    touch.isMoving = false;
+    touch.moveDirection = { x: 0, y: 0 };
+}
+
+// タッチイベントリスナーを登録
+canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
 
 function resetGame() {
     // ゲーム状態をリセット
@@ -999,6 +1096,11 @@ function resetGame() {
     document.getElementById('victoryRetryButton').style.display = 'none';
     document.getElementById('startScreen').style.display = 'none';
     
+    // タッチ状態をリセット
+    touch.isActive = false;
+    touch.isMoving = false;
+    touch.moveDirection = { x: 0, y: 0 };
+    
     // マップを再初期化
     initMap();
 }
@@ -1021,10 +1123,24 @@ document.getElementById('victoryRetryButton').addEventListener('click', () => {
 // 初期化
 initSounds();
 
+// デバイスに応じてUIを切り替え
+function updateControlsDisplay() {
+    if (isMobile) {
+        document.querySelector('.pc-controls').style.display = 'none';
+        document.querySelector('.mobile-controls').style.display = 'inline';
+        canvas.style.cursor = 'default';
+    } else {
+        document.querySelector('.pc-controls').style.display = 'inline';
+        document.querySelector('.mobile-controls').style.display = 'none';
+    }
+}
+
 loadSprites().then(() => {
     console.log('Sprites loaded');
+    updateControlsDisplay();
     gameLoop();
 }).catch((error) => {
     console.log('Starting game without sprites');
+    updateControlsDisplay();
     gameLoop();
 });

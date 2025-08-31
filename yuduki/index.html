@@ -2,7 +2,7 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1" />
         <title>ゴブリンアドベンチャー</title>
         <style>
             body {
@@ -14,6 +14,10 @@
                 min-height: 100vh;
                 background: #1a1a1a;
                 font-family: Arial, sans-serif;
+                touch-action: none;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
             }
             #gameContainer {
                 position: relative;
@@ -21,6 +25,8 @@
             canvas {
                 border: 2px solid #444;
                 cursor: crosshair;
+                max-width: 100vw;
+                max-height: 100vh;
             }
             #ui {
                 position: absolute;
@@ -29,6 +35,7 @@
                 color: white;
                 font-size: 18px;
                 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+                pointer-events: none;
             }
             #hpBar {
                 width: 200px;
@@ -109,6 +116,60 @@
                 left: 10px;
                 color: #ccc;
                 font-size: 14px;
+                pointer-events: none;
+            }
+            
+            /* スマホ対応 */
+            @media (max-width: 768px) {
+                body {
+                    padding: 0;
+                    align-items: flex-start;
+                }
+                
+                #gameContainer {
+                    width: 100vw;
+                    height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                canvas {
+                    width: 100vw;
+                    height: calc(100vh - 60px);
+                    border: none;
+                    object-fit: contain;
+                }
+                
+                #ui {
+                    font-size: 16px;
+                    background: rgba(0, 0, 0, 0.7);
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                }
+                
+                #instructions {
+                    bottom: 5px;
+                    left: 5px;
+                    font-size: 12px;
+                    background: rgba(0, 0, 0, 0.7);
+                    padding: 3px 6px;
+                    border-radius: 3px;
+                }
+                
+                .gameButton {
+                    padding: 20px 50px !important;
+                    font-size: 28px !important;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                #ui {
+                    font-size: 14px;
+                }
+                
+                #instructions {
+                    font-size: 11px;
+                }
             }
         </style>
     </head>
@@ -137,7 +198,10 @@
                 VICTORY!
             </div>
             <button id="victoryRetryButton" class="gameButton">もう一度遊ぶ</button>
-            <div id="instructions">WASD: 移動 | マウス: 攻撃</div>
+            <div id="instructions">
+                <span class="pc-controls">WASD: 移動 | マウス: 攻撃</span>
+                <span class="mobile-controls" style="display: none;">ドラッグ: 移動 | タップ: 攻撃</span>
+            </div>
         </div>
         
         <!-- 効果音用のオーディオ要素 -->
