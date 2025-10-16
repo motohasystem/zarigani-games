@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/ddssk/Documents/MotohaSystem/Project/CoderDojo神山/game/zarigani-games/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

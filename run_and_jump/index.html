@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ラン&ジャンプ - ザリガニゲームス</title>
+    <meta property="og:title" content="ラン&ジャンプ - ザリガニゲームス">
+    <meta property="og:description" content="30秒でゴールを目指すラン&ジャンプアクションゲーム">
+    <meta property="og:image" content="../ogp.png">
+    <meta property="og:url" content="https://zarigani-games.com/run_and_jump/">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="ui">
+            <div id="topBar">
+                <div id="timer">30.0</div>
+                <div id="progressBar">
+                    <div id="progressFill"></div>
+                </div>
+                <div id="score">Score: 0</div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="1024" height="600"></canvas>
+
+        <div id="menu" class="screen">
+            <h1>ラン&ジャンプ</h1>
+            <p>30秒でゴールを目指せ！</p>
+            <p>スペースキー：ジャンプ（2段ジャンプ可能）</p>
+            <button id="startButton">スタート</button>
+        </div>
+
+        <div id="gameOver" class="screen hidden">
+            <h1>ゲームオーバー</h1>
+            <p id="resultMessage"></p>
+            <p id="finalScore"></p>
+            <button id="retryButton">リトライ</button>
+        </div>
+
+        <div id="goal" class="screen hidden">
+            <h1>ゴール！</h1>
+            <p id="goalTime"></p>
+            <p id="goalScore"></p>
+            <button id="playAgainButton">もう一度</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
