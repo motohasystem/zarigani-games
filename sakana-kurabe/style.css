@@ -1,0 +1,698 @@
+:root {
+    --bg-top: #0b2f4a;
+    --bg-bottom: #0f617f;
+    --card: rgba(255, 255, 255, 0.96);
+    --accent: #00bcd4;
+    --accent-soft: rgba(0, 188, 212, 0.15);
+    --text-main: #102332;
+    --text-sub: #5c7387;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #174a72 0, #061522 45%, #020812 100%);
+    color: #e9f5ff;
+    min-height: 100vh;
+}
+
+/* 背景 */
+.ocean-bg {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom, var(--bg-top), var(--bg-bottom));
+    opacity: 0.9;
+    z-index: -2;
+}
+
+.ocean-light {
+    position: fixed;
+    inset: -20%;
+    background:
+        radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.25), transparent 55%),
+        radial-gradient(circle at 80% -10%, rgba(255, 255, 255, 0.15), transparent 55%);
+    mix-blend-mode: screen;
+    opacity: 0.25;
+    animation: lightMove 18s ease-in-out infinite alternate;
+    z-index: -1;
+}
+
+@keyframes lightMove {
+    0% {
+        transform: translateY(0);
+        opacity: 0.2;
+    }
+
+    100% {
+        transform: translateY(40px);
+        opacity: 0.35;
+    }
+}
+
+.bubble {
+    position: fixed;
+    bottom: -60px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), transparent 70%);
+    opacity: 0.4;
+    animation: bubbleUp linear infinite;
+    z-index: -1;
+}
+
+.bubble:nth-child(1) {
+    left: 10%;
+    width: 16px;
+    height: 16px;
+    animation-duration: 12s;
+}
+
+.bubble:nth-child(2) {
+    left: 30%;
+    width: 10px;
+    height: 10px;
+    animation-duration: 10s;
+    animation-delay: 2s;
+}
+
+.bubble:nth-child(3) {
+    left: 55%;
+    width: 20px;
+    height: 20px;
+    animation-duration: 14s;
+    animation-delay: 1s;
+}
+
+.bubble:nth-child(4) {
+    left: 75%;
+    width: 12px;
+    height: 12px;
+    animation-duration: 11s;
+    animation-delay: 3s;
+}
+
+.bubble:nth-child(5) {
+    left: 90%;
+    width: 14px;
+    height: 14px;
+    animation-duration: 13s;
+    animation-delay: 4s;
+}
+
+@keyframes bubbleUp {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 0.4;
+    }
+
+    100% {
+        transform: translateY(-120vh) translateX(-10px);
+        opacity: 0;
+    }
+}
+
+.app {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 20px 16px 32px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+header h1 {
+    font-size: 1.9rem;
+    margin: 0 0 6px;
+}
+
+header p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #d1e5ff;
+}
+
+.badge-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148, 200, 255, 0.4);
+    color: #e2f2ff;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr);
+    gap: 16px;
+    align-items: stretch;
+}
+
+.card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 14px 16px 16px;
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.3);
+    color: var(--text-main);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(0, 188, 212, 0.13), transparent 55%);
+    pointer-events: none;
+}
+
+.card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.card-sub {
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    background: var(--accent-soft);
+    color: #036c7a;
+    white-space: nowrap;
+}
+
+/* 水槽カード */
+.tank {
+    background: linear-gradient(to bottom, rgba(7, 25, 48, 0.92), rgba(7, 35, 60, 0.97));
+    border: 1px solid rgba(148, 200, 255, 0.35);
+}
+
+.tank-inner {
+    position: relative;
+    padding-top: 6px;
+}
+
+.tank-waterline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.45), transparent);
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.tank-bottom {
+    position: absolute;
+    left: -12px;
+    right: -12px;
+    bottom: -18px;
+    height: 32px;
+    background:
+        radial-gradient(circle at 50% 0, rgba(255, 255, 255, 0.25), transparent 55%),
+        linear-gradient(to right, #b59a6a, #d3b980, #b59a6a);
+    filter: blur(1px);
+    opacity: 0.95;
+    z-index: 0;
+}
+
+.sand-line {
+    position: absolute;
+    left: -12px;
+    right: -12px;
+    bottom: 14px;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.25);
+    opacity: 0.5;
+    z-index: 1;
+}
+
+.seaweed {
+    position: absolute;
+    bottom: 12px;
+    width: 12px;
+    height: 40px;
+    border-radius: 999px;
+    background: linear-gradient(to top, #166534, #4ade80);
+    opacity: 0.85;
+    transform-origin: bottom center;
+    animation: sway 4s ease-in-out infinite alternate;
+}
+
+.seaweed:nth-child(1) {
+    left: 6%;
+    animation-duration: 5s;
+}
+
+.seaweed:nth-child(2) {
+    left: 22%;
+    animation-duration: 4s;
+}
+
+.seaweed:nth-child(3) {
+    left: 45%;
+    animation-duration: 6s;
+}
+
+.seaweed:nth-child(4) {
+    left: 70%;
+    animation-duration: 5.5s;
+}
+
+.seaweed:nth-child(5) {
+    left: 88%;
+    animation-duration: 4.5s;
+}
+
+@keyframes sway {
+    0% {
+        transform: rotate(-3deg);
+    }
+
+    100% {
+        transform: rotate(4deg);
+    }
+}
+
+.fish-list {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 8px;
+    padding-bottom: 26px;
+}
+
+.fish-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fish-tag {
+    min-width: 105px;
+    max-width: 120px;
+    font-size: 0.75rem;
+    color: #e5f1ff;
+}
+
+.fish-tag-name {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.fish-tag-length {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+.fish-lane {
+    flex: 1;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.fish-shadow-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 9px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(15, 23, 42, 0.8), transparent);
+    opacity: 0.5;
+}
+
+.fish-body {
+    position: relative;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 10px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+    animation: swim 5s ease-in-out infinite alternate;
+    transform-origin: center;
+    overflow: visible;
+}
+
+@keyframes swim {
+    0% {
+        transform: translateX(0) translateY(0);
+    }
+
+    50% {
+        transform: translateX(4px) translateY(-1px);
+    }
+
+    100% {
+        transform: translateX(-4px) translateY(0);
+    }
+}
+
+/* 共通：尾びれ */
+.fish-body::after {
+    content: "";
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
+    border-left: 14px solid currentColor;
+    filter: brightness(0.9);
+}
+
+/* 共通：目 */
+.fish-body::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #fefefe;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.55);
+}
+
+.fish-label-inside {
+    font-size: 0.75rem;
+    color: #eaf9ff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ─── 魚ごとのシルエット＆色 ─── */
+
+/* クロマグロ：細長いトルピード */
+.fish-body.fish-tuna {
+    height: 20px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #1d4ed8, #0b2ddc);
+    color: #1d4ed8;
+}
+
+/* サケ：ちょい厚みの流線型 */
+.fish-body.fish-sake {
+    height: 22px;
+    border-radius: 999px 85% 80% 999px;
+    background: linear-gradient(90deg, #fb923c, #f97316);
+    color: #f97316;
+}
+
+/* マダイ：背が高めで丸っこい */
+.fish-body.fish-seabream {
+    height: 26px;
+    border-radius: 999px 999px 80% 80%;
+    background: linear-gradient(90deg, #fb7185, #e11d48);
+    color: #fb7185;
+}
+
+/* サバ：スマート＋ちょい厚み */
+.fish-body.fish-mackerel {
+    height: 20px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #22c55e, #15803d);
+    color: #22c55e;
+}
+
+/* アジ：標準的体型 */
+.fish-body.fish-aji {
+    height: 19px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #a3e635, #65a30d);
+    color: #84cc16;
+}
+
+/* イワシ：細長い */
+.fish-body.fish-sardine {
+    height: 14px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+    color: #38bdf8;
+}
+
+/* フグ：丸いシルエット（尾びれ小さめ） */
+.fish-body.fish-fugu {
+    height: 30px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 30% 40%, #fef9c3, #facc15 55%, #ca8a04 100%);
+    color: #ca8a04;
+}
+
+.fish-body.fish-fugu::after {
+    border-top-width: 7px;
+    border-bottom-width: 7px;
+    border-left-width: 10px;
+    right: -10px;
+}
+
+/* ヒラメ：薄くて横に広いフラット */
+.fish-body.fish-hirame {
+    height: 16px;
+    border-radius: 70% 80% 80% 70%;
+    background: linear-gradient(90deg, #4b5563, #111827);
+    color: #4b5563;
+}
+
+.fish-body.fish-hirame::before {
+    left: 8px;
+}
+
+/* キミの魚：ちょい強めカラー */
+.fish-body.fish-mine {
+    height: 24px;
+    border-radius: 999px 90% 85% 999px;
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    color: #f97316;
+}
+
+/* ─── コントロール側 ─── */
+
+.control-main-label {
+    font-size: 0.8rem;
+    color: var(--text-sub);
+    margin-bottom: 4px;
+}
+
+.slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.slider-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 80px;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: #e0edf6;
+    outline: none;
+    margin: 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #00bcd4;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.25);
+    cursor: pointer;
+    margin-top: -6px;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #00bcd4;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.25);
+    cursor: pointer;
+}
+
+.quick-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 4px;
+}
+
+.chip-btn {
+    border-radius: 999px;
+    border: 1px solid #d0dde7;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    background: #f8fafc;
+    color: var(--text-main);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.15s, transform 0.05s, box-shadow 0.1s;
+}
+
+.chip-btn:hover {
+    background: #e2f3ff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 7px rgba(15, 23, 42, 0.15);
+}
+
+.chip-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.chip-btn.mic {
+    border-color: #fecaca;
+    background: #fff1f2;
+}
+
+.chip-btn.mic.listening {
+    background: #fee2e2;
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.5);
+}
+
+.voice-status {
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    min-height: 1.2em;
+}
+
+.comment-box {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: var(--text-sub);
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    border: 1px dashed #cdd6e0;
+}
+
+.comment-main {
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: #0f172a;
+}
+
+.comment-sub {
+    font-size: 0.75rem;
+}
+
+.legend {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 0.7rem;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #e5edf7;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+}
+
+.legend-dot.tuna {
+    background: linear-gradient(90deg, #1d4ed8, #0b2ddc);
+}
+
+.legend-dot.sake {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+}
+
+.legend-dot.seabream {
+    background: linear-gradient(90deg, #fb7185, #e11d48);
+}
+
+.legend-dot.mackerel {
+    background: linear-gradient(90deg, #22c55e, #15803d);
+}
+
+.legend-dot.aji {
+    background: linear-gradient(90deg, #a3e635, #65a30d);
+}
+
+.legend-dot.sardine {
+    background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+}
+
+.legend-dot.fugu {
+    background: radial-gradient(circle, #fef9c3, #facc15);
+}
+
+.legend-dot.hirame {
+    background: linear-gradient(90deg, #4b5563, #111827);
+}
+
+.legend-dot.mine {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+}
+
+@media (max-width: 800px) {
+    .layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

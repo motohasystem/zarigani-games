@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>魚サイズくらべアクアリウム（音声で魚追加版）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 背景 -->
+  <div class="ocean-bg"></div>
+  <div class="ocean-light"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+
+  <div class="app">
+    <header>
+      <h1>魚サイズくらべアクアリウム 🐟</h1>
+      <p>実在の魚たちの体型イメージでシルエット再現。声で魚の名前を呼ぶと、水槽に追加されるよ。</p>
+      <div class="badge-main">
+        <span>🎙 Web Speech API</span>
+        <span>×</span>
+        <span>エンタメ水槽ビュー</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- 左：水槽ビュー -->
+      <section class="card tank">
+        <div class="card-title">
+          <span>水槽ビュー</span>
+          <span class="pill">横幅 = 体長 / 体型も種類ごとに変化</span>
+        </div>
+        <p class="card-sub">
+          最初はクロマグロ・マダイ・イワシだけ表示されてるよ。<br>
+          「マグロ」「サケ」「アジ」「フグ」「ヒラメ」などと声で追加して、水槽をにぎやかにしよう。
+        </p>
+
+        <div class="tank-inner">
+          <div class="tank-waterline"></div>
+          <div class="tank-bottom"></div>
+          <div class="sand-line"></div>
+          <!-- 海藻 -->
+          <div class="seaweed"></div>
+          <div class="seaweed"></div>
+          <div class="seaweed"></div>
+          <div class="seaweed"></div>
+          <div class="seaweed"></div>
+
+          <div id="fishList" class="fish-list">
+            <!-- JSで生成 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 右：操作パネル -->
+      <section class="card">
+        <div class="card-title">
+          <span>キミの魚コントローラー</span>
+          <span class="pill">スライダー & 音声入力</span>
+        </div>
+
+        <p class="control-main-label">キミの魚の長さ（だいたいでOK）</p>
+        <div class="slider-row">
+          <div class="slider-value" id="myLengthLabel">80 cm</div>
+          <input id="myLengthSlider" type="range" min="5" max="300" value="80" />
+        </div>
+
+        <div class="card-sub">
+          5cm〜300cmの間で動かせるよ。<br />
+          「この長さって、マダイとかサバとかと比べるとどのくらい？」を一瞬でイメージできるようにしてる感じ。
+        </div>
+
+        <div class="quick-buttons">
+          <button class="chip-btn" data-length="7">🐟 メダカ級（約7cm）</button>
+          <button class="chip-btn" data-length="15">🐠 イワシくらい（約15cm）</button>
+          <button class="chip-btn" data-length="25">🐟 アジくらい（約25cm）</button>
+          <button class="chip-btn" data-length="40">🎣 マダイ級（約40cm）</button>
+          <button class="chip-btn" data-length="80">🔥 サケ級（約80cm）</button>
+          <button class="chip-btn" data-length="250">💙 クロマグロ級（約250cm）</button>
+        </div>
+
+        <!-- 音声入力ボタン -->
+        <div style="margin-top:8px;">
+          <button id="voiceBtn" class="chip-btn mic">
+            🎙 声で魚を追加
+          </button>
+          <div id="voiceStatus" class="voice-status">
+            対応例：「マグロ」「サケ」「マダイ」「サバ」「アジ」「イワシ」「フグ」「ヒラメ」
+          </div>
+        </div>
+
+        <div class="comment-box">
+          <div class="comment-main" id="commentMain">クロマグロの約32%くらいの大きさ！</div>
+          <div class="comment-sub" id="commentSub">
+            マダイ・サバ・アジあたりと並べて見ると、なかなか存在感あるサイズ感だね〜。
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot tuna"></span>クロマグロ（250cm）</div>
+          <div class="legend-item"><span class="legend-dot sake"></span>サケ（80cm）</div>
+          <div class="legend-item"><span class="legend-dot seabream"></span>マダイ（40cm）</div>
+          <div class="legend-item"><span class="legend-dot mackerel"></span>サバ（30cm）</div>
+          <div class="legend-item"><span class="legend-dot aji"></span>アジ（25cm）</div>
+          <div class="legend-item"><span class="legend-dot sardine"></span>イワシ（15cm）</div>
+          <div class="legend-item"><span class="legend-dot fugu"></span>フグ（30cm）</div>
+          <div class="legend-item"><span class="legend-dot hirame"></span>ヒラメ（60cm）</div>
+          <div class="legend-item"><span class="legend-dot mine"></span>キミの魚（可変）</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
