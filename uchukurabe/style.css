@@ -106,6 +106,34 @@ header p {
     box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
 }
 
+.display-mode {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    background: rgba(74, 144, 226, 0.1);
+    border: 1px solid #4a90e2;
+    border-radius: 5px;
+}
+
+.display-mode input[type="radio"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: #4a90e2;
+}
+
+.display-mode label {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #ffffff;
+    user-select: none;
+}
+
+.display-mode label:hover {
+    color: #4a90e2;
+}
+
 .info-panel {
     display: flex;
     justify-content: space-around;
