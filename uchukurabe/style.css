@@ -1,0 +1,208 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #000000, #0a0a2e, #16213e);
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+header {
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid #4a90e2;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    background: linear-gradient(45deg, #4a90e2, #f39c12, #e74c3c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(74, 144, 226, 0.5);
+}
+
+header p {
+    font-size: 1.1rem;
+    color: #cccccc;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid #333;
+    flex-wrap: wrap;
+}
+
+.controls label {
+    font-size: 1rem;
+    color: #ffffff;
+}
+
+.controls select {
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 2px solid #4a90e2;
+    border-radius: 5px;
+    background: #1a1a2e;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+.controls select:hover {
+    border-color: #f39c12;
+    background: #252545;
+}
+
+.controls select:focus {
+    outline: none;
+    border-color: #e74c3c;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+}
+
+.controls button {
+    padding: 10px 25px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+#add-button {
+    background: linear-gradient(135deg, #4a90e2, #357abd);
+    color: white;
+}
+
+#add-button:hover {
+    background: linear-gradient(135deg, #357abd, #2868a6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(74, 144, 226, 0.4);
+}
+
+#reset-button {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+#reset-button:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
+}
+
+.info-panel {
+    display: flex;
+    justify-content: space-around;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid #333;
+    font-size: 0.95rem;
+}
+
+.info-panel div {
+    color: #cccccc;
+}
+
+.info-panel span {
+    color: #4a90e2;
+    font-weight: bold;
+}
+
+.canvas-container {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 250px);
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: radial-gradient(ellipse at center, #0f0f23 0%, #000000 100%);
+}
+
+.canvas-container::-webkit-scrollbar {
+    height: 12px;
+}
+
+.canvas-container::-webkit-scrollbar-track {
+    background: #0a0a0a;
+    border-radius: 6px;
+}
+
+.canvas-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #4a90e2, #f39c12);
+    border-radius: 6px;
+}
+
+.canvas-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #357abd, #e67e22);
+}
+
+#space-canvas {
+    display: block;
+    cursor: grab;
+}
+
+#space-canvas:active {
+    cursor: grabbing;
+}
+
+/* Stars animation */
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+.canvas-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, white, transparent),
+        radial-gradient(2px 2px at 60px 70px, white, transparent),
+        radial-gradient(1px 1px at 50px 50px, white, transparent),
+        radial-gradient(1px 1px at 130px 80px, white, transparent),
+        radial-gradient(2px 2px at 90px 10px, white, transparent);
+    background-size: 200px 200px;
+    background-repeat: repeat;
+    animation: twinkle 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    .controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .controls select {
+        min-width: 250px;
+    }
+
+    .info-panel {
+        flex-direction: column;
+        gap: 8px;
+    }
+}

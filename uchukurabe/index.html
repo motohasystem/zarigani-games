@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ウチュークラベ - 天体サイズ比較アプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>ウチュークラベ</h1>
+        <p>天体のサイズを比較してみよう！</p>
+    </header>
+
+    <div class="controls">
+        <label for="celestial-select">天体を選択:</label>
+        <select id="celestial-select">
+            <option value="">-- 天体を選んでください --</option>
+            <option value="moon">月</option>
+            <option value="mercury">水星</option>
+            <option value="mars">火星</option>
+            <option value="venus">金星</option>
+            <option value="earth">地球</option>
+            <option value="neptune">海王星</option>
+            <option value="uranus">天王星</option>
+            <option value="saturn">土星</option>
+            <option value="jupiter">木星</option>
+            <option value="sun">太陽</option>
+            <option value="betelgeuse">ベテルギウス（恒星）</option>
+            <option value="antares">アンタレス（恒星）</option>
+            <option value="rigel">リゲル（恒星）</option>
+            <option value="aldebaran">アルデバラン（恒星）</option>
+        </select>
+        <button id="add-button">追加</button>
+        <button id="reset-button">リセット</button>
+    </div>
+
+    <div class="info-panel">
+        <div id="scale-info">縮尺: <span id="scale-value">1:1</span></div>
+        <div id="body-count">表示中の天体: <span id="count-value">1</span></div>
+    </div>
+
+    <div class="canvas-container" id="canvas-container">
+        <canvas id="space-canvas"></canvas>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
