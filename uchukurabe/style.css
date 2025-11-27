@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to bottom, #000000, #0a0a2e, #16213e);
+    background: #000000;
     color: #ffffff;
     min-height: 100vh;
     overflow-x: hidden;
@@ -158,7 +158,7 @@ header p {
     height: calc(100vh - 250px);
     overflow-x: auto;
     overflow-y: hidden;
-    background: radial-gradient(ellipse at center, #0f0f23 0%, #000000 100%);
+    background: #000000;
 }
 
 .canvas-container::-webkit-scrollbar {

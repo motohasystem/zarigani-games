@@ -70,7 +70,8 @@ const celestialBodies = {
         color: '#fad5a5',
         type: '惑星',
         hiraganaType: 'わくせい',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg'
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg',
+        imageRotation: 90  // 画像が横長のため90度回転
     },
     jupiter: {
         name: '木星',
@@ -425,7 +426,7 @@ class SpaceComparison {
     }
 
     drawCelestialBody(body) {
-        const { x, y, radius, id, color } = body;
+        const { x, y, radius, id, color, imageRotation } = body;
         const image = this.imageCache[id];
 
         // 影を追加
@@ -436,31 +437,30 @@ class SpaceComparison {
 
         // 画像がある場合は画像を使って描画、ない場合はグラデーション
         if (image && image.complete) {
-            // 円形にクリップして画像を描画
             this.ctx.save();
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, radius, 0, Math.PI * 2);
-            this.ctx.closePath();
-            this.ctx.clip();
 
-            // 画像を円内に描画
+            // 画像のアスペクト比を維持して、高さを円の直径に合わせる
+            const imgAspect = image.width / image.height;
+            let drawWidth, drawHeight;
+
+            // 高さを円の直径に合わせ、幅はアスペクト比に従う
+            drawHeight = radius * 2;
+            drawWidth = drawHeight * imgAspect;
+
+            // 回転が指定されている場合は回転を適用
+            this.ctx.translate(x, y);
+            if (imageRotation) {
+                this.ctx.rotate(imageRotation * Math.PI / 180);
+            }
             this.ctx.drawImage(
                 image,
-                x - radius,
-                y - radius,
-                radius * 2,
-                radius * 2
+                -drawWidth / 2,
+                -drawHeight / 2,
+                drawWidth,
+                drawHeight
             );
 
             this.ctx.restore();
-
-            // 円の輪郭を描画（オプション）
-            this.ctx.shadowColor = 'transparent';
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            this.ctx.lineWidth = 2;
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, radius, 0, Math.PI * 2);
-            this.ctx.stroke();
         } else {
             // グラデーションで球体を描画（フォールバック）
             const gradient = this.ctx.createRadialGradient(
