@@ -12,82 +12,552 @@
         <meta name="twitter:title" content="ザリガニゲームス" />
         <meta name="twitter:description" content="CoderDojo神山で制作されたブラウザゲーム集" />
         <meta name="twitter:image" content="./resource/ogp.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
         <style>
+            :root {
+                --bg-deep: #0a0e1a;
+                --bg-water: #0d1929;
+                --accent-cyan: #00f5d4;
+                --accent-pink: #ff6b9d;
+                --accent-yellow: #ffd93d;
+                --accent-orange: #ff8c42;
+                --card-bg: rgba(20, 35, 60, 0.85);
+                --card-border: rgba(0, 245, 212, 0.2);
+                --text-primary: #ffffff;
+                --text-secondary: rgba(255, 255, 255, 0.7);
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
             body {
-                font-family: Arial, sans-serif;
-                max-width: 800px;
+                font-family: "Zen Maru Gothic", sans-serif;
+                min-height: 100vh;
+                background: var(--bg-deep);
+                color: var(--text-primary);
+                overflow-x: hidden;
+                position: relative;
+            }
+
+            /* Animated water background */
+            .bg-layer {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                overflow: hidden;
+            }
+
+            .bg-gradient {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(ellipse at 20% 20%, rgba(0, 245, 212, 0.08) 0%, transparent 50%),
+                    radial-gradient(ellipse at 80% 80%, rgba(255, 107, 157, 0.08) 0%, transparent 50%),
+                    radial-gradient(ellipse at 50% 50%, rgba(255, 140, 66, 0.05) 0%, transparent 60%),
+                    linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-water) 50%, #0f2035 100%);
+            }
+
+            /* Floating bubbles */
+            .bubble {
+                position: absolute;
+                border-radius: 50%;
+                background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), rgba(0, 245, 212, 0.1));
+                animation: float-up linear infinite;
+                opacity: 0;
+            }
+
+            @keyframes float-up {
+                0% {
+                    transform: translateY(100vh) scale(0);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 0.6;
+                }
+                90% {
+                    opacity: 0.6;
+                }
+                100% {
+                    transform: translateY(-100px) scale(1);
+                    opacity: 0;
+                }
+            }
+
+            /* Wavy lines */
+            .wave-container {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 200px;
+                overflow: hidden;
+                opacity: 0.1;
+            }
+
+            .wave {
+                position: absolute;
+                bottom: 0;
+                left: -50%;
+                width: 200%;
+                height: 100px;
+                background: repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 50px,
+                    var(--accent-cyan) 50px,
+                    var(--accent-cyan) 51px
+                );
+                animation: wave-move 20s linear infinite;
+            }
+
+            .wave:nth-child(2) {
+                bottom: 30px;
+                opacity: 0.5;
+                animation-duration: 25s;
+                animation-direction: reverse;
+            }
+
+            @keyframes wave-move {
+                0% {
+                    transform: translateX(0);
+                }
+                100% {
+                    transform: translateX(50%);
+                }
+            }
+
+            /* Main content */
+            .container {
+                max-width: 1200px;
                 margin: 0 auto;
-                padding: 20px;
-                background-color: #f5f5f5;
+                padding: 40px 20px 60px;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* Header */
+            header {
+                text-align: center;
+                margin-bottom: 50px;
+                animation: fade-in-down 0.8s ease-out;
+            }
+
+            @keyframes fade-in-down {
+                from {
+                    opacity: 0;
+                    transform: translateY(-30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .logo {
+                display: inline-block;
+                position: relative;
+            }
+
+            .logo-icon {
+                font-size: 4rem;
+                display: block;
+                margin-bottom: 10px;
+                animation: wiggle 3s ease-in-out infinite;
+                filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.5));
+            }
+
+            @keyframes wiggle {
+                0%,
+                100% {
+                    transform: rotate(-5deg);
+                }
+                50% {
+                    transform: rotate(5deg);
+                }
             }
 
             h1 {
-                text-align: center;
-                color: #333;
-                margin-bottom: 30px;
+                font-family: "Dela Gothic One", sans-serif;
+                font-size: clamp(2rem, 8vw, 3.5rem);
+                background: linear-gradient(
+                    135deg,
+                    var(--accent-cyan) 0%,
+                    var(--accent-pink) 50%,
+                    var(--accent-yellow) 100%
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                letter-spacing: 0.05em;
+                text-shadow: none;
+                position: relative;
             }
 
+            h1::after {
+                content: "ザリガニゲームス";
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: linear-gradient(
+                    135deg,
+                    var(--accent-cyan) 0%,
+                    var(--accent-pink) 50%,
+                    var(--accent-yellow) 100%
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                filter: blur(20px);
+                opacity: 0.5;
+                z-index: -1;
+            }
+
+            .subtitle {
+                margin-top: 15px;
+                font-size: 1rem;
+                color: var(--text-secondary);
+                letter-spacing: 0.2em;
+            }
+
+            .subtitle span {
+                color: var(--accent-cyan);
+                font-weight: 700;
+            }
+
+            /* Game grid */
             .game-list {
                 display: grid;
-                gap: 20px;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 25px;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             }
 
             .game-card {
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                position: relative;
+                background: var(--card-bg);
+                border: 1px solid var(--card-border);
+                border-radius: 20px;
+                padding: 30px 25px;
                 text-decoration: none;
                 color: inherit;
-                transition: transform 0.2s, box-shadow 0.2s;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                overflow: hidden;
+                opacity: 0;
+                transform: translateY(40px);
+                animation: card-enter 0.6s ease-out forwards;
+                backdrop-filter: blur(10px);
+            }
+
+            .game-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink), var(--accent-yellow));
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .game-card::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(
+                    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                    rgba(0, 245, 212, 0.1) 0%,
+                    transparent 50%
+                );
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .game-card:hover::before,
+            .game-card:hover::after {
+                opacity: 1;
             }
 
             .game-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+                transform: translateY(-8px) scale(1.02);
+                border-color: rgba(0, 245, 212, 0.4);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 60px rgba(0, 245, 212, 0.15),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            }
+
+            @keyframes card-enter {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
 
             .game-icon {
-                font-size: 3em;
+                font-size: 3.5rem;
                 text-align: center;
-                margin-bottom: 15px;
+                margin-bottom: 20px;
+                transition: transform 0.3s ease;
+                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            }
+
+            .game-card:hover .game-icon {
+                transform: scale(1.15) rotate(-5deg);
             }
 
             .game-icon img {
-                width: 60px;
-                height: 60px;
+                width: 70px;
+                height: 70px;
                 object-fit: cover;
-                border-radius: 8px;
+                border-radius: 12px;
+                border: 2px solid var(--card-border);
             }
 
             .game-title {
-                font-size: 1.5em;
-                font-weight: bold;
-                color: #2c3e50;
+                font-family: "Dela Gothic One", sans-serif;
+                font-size: 1.3rem;
+                color: var(--text-primary);
                 margin: 0;
                 text-align: center;
+                line-height: 1.4;
             }
 
             .game-description {
-                font-size: 0.9em;
-                color: #666;
-                margin: 8px 0 0 0;
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+                margin: 12px 0 0 0;
                 text-align: center;
+                line-height: 1.5;
             }
 
+            .play-hint {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                margin-top: 20px;
+                font-size: 0.85rem;
+                color: var(--accent-cyan);
+                opacity: 0;
+                transform: translateY(10px);
+                transition: all 0.3s ease;
+            }
+
+            .play-hint svg {
+                width: 16px;
+                height: 16px;
+                transition: transform 0.3s ease;
+            }
+
+            .game-card:hover .play-hint {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .game-card:hover .play-hint svg {
+                transform: translateX(4px);
+            }
+
+            /* Loading state */
             .loading {
                 text-align: center;
-                color: #666;
-                font-size: 1.2em;
+                color: var(--text-secondary);
+                font-size: 1.2rem;
+                padding: 60px 20px;
+            }
+
+            .loading::after {
+                content: "";
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 2px solid var(--accent-cyan);
+                border-top-color: transparent;
+                border-radius: 50%;
+                margin-left: 10px;
+                animation: spin 1s linear infinite;
+                vertical-align: middle;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* Footer */
+            footer {
+                text-align: center;
+                margin-top: 60px;
+                padding-top: 30px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                animation: fade-in-up 0.8s ease-out 0.5s both;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+
+            @keyframes fade-in-up {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .footer-logo {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                color: var(--text-secondary);
+                font-size: 0.9rem;
+                text-decoration: none;
+                transition: all 0.3s;
+            }
+
+            .footer-logo:hover {
+                color: var(--accent-cyan);
+            }
+
+            .footer-logo.primary {
+                font-family: "Dela Gothic One", sans-serif;
+                font-size: 1.1rem;
+                color: var(--accent-cyan);
+                padding: 10px 24px;
+                border: 1px solid var(--accent-cyan);
+                border-radius: 30px;
+                background: rgba(0, 245, 212, 0.05);
+            }
+
+            .footer-logo.primary:hover {
+                background: rgba(0, 245, 212, 0.15);
+                box-shadow: 0 0 20px rgba(0, 245, 212, 0.3);
+                transform: translateY(-2px);
+            }
+
+            .footer-logo img {
+                height: 24px;
+                opacity: 0.7;
+                transition: opacity 0.3s;
+            }
+
+            .footer-logo:hover img {
+                opacity: 1;
+            }
+
+            /* Responsive */
+            @media (max-width: 600px) {
+                .container {
+                    padding: 30px 15px 40px;
+                }
+
+                header {
+                    margin-bottom: 35px;
+                }
+
+                .logo-icon {
+                    font-size: 3rem;
+                }
+
+                .game-list {
+                    gap: 18px;
+                }
+
+                .game-card {
+                    padding: 25px 20px;
+                }
+
+                .game-icon {
+                    font-size: 2.8rem;
+                    margin-bottom: 15px;
+                }
+
+                .game-title {
+                    font-size: 1.1rem;
+                }
             }
         </style>
     </head>
     <body>
-        <h1>ザリガニゲームス</h1>
-        <div id="gameList" class="loading">ゲームを読み込み中...</div>
+        <div class="bg-layer">
+            <div class="bg-gradient"></div>
+            <div class="wave-container">
+                <div class="wave"></div>
+                <div class="wave"></div>
+            </div>
+        </div>
+
+        <div class="container">
+            <header>
+                <div class="logo">
+                    <span class="logo-icon">🦞</span>
+                    <h1>ザリガニゲームス</h1>
+                </div>
+                <p class="subtitle">made with <span>CoderDojo神山</span></p>
+            </header>
+
+            <div id="gameList" class="loading">ゲームを読み込み中</div>
+
+            <footer>
+                <a href="https://coderdojo.kamiyama.club/" target="_blank" rel="noopener" class="footer-logo primary">
+                    <span>CoderDojo神山</span>
+                </a>
+                <a href="https://coderdojo.jp/" target="_blank" rel="noopener" class="footer-logo">
+                    <span>Powered by CoderDojo Japan</span>
+                </a>
+            </footer>
+        </div>
 
         <script>
+            // Create floating bubbles
+            function createBubbles() {
+                const bgLayer = document.querySelector(".bg-layer");
+                const bubbleCount = 15;
+
+                for (let i = 0; i < bubbleCount; i++) {
+                    const bubble = document.createElement("div");
+                    bubble.className = "bubble";
+                    const size = Math.random() * 20 + 5;
+                    bubble.style.width = size + "px";
+                    bubble.style.height = size + "px";
+                    bubble.style.left = Math.random() * 100 + "%";
+                    bubble.style.animationDuration = Math.random() * 10 + 10 + "s";
+                    bubble.style.animationDelay = Math.random() * 10 + "s";
+                    bgLayer.appendChild(bubble);
+                }
+            }
+
+            // Card mouse tracking for glow effect
+            function initCardEffects() {
+                document.querySelectorAll(".game-card").forEach((card) => {
+                    card.addEventListener("mousemove", (e) => {
+                        const rect = card.getBoundingClientRect();
+                        const x = ((e.clientX - rect.left) / rect.width) * 100;
+                        const y = ((e.clientY - rect.top) / rect.height) * 100;
+                        card.style.setProperty("--mouse-x", x + "%");
+                        card.style.setProperty("--mouse-y", y + "%");
+                    });
+                });
+            }
+
             async function loadGames() {
                 try {
                     const response = await fetch("./links.json");
@@ -97,10 +567,11 @@
                     gameListElement.innerHTML = "";
                     gameListElement.className = "game-list";
 
-                    games.forEach((game) => {
+                    games.forEach((game, index) => {
                         const gameCard = document.createElement("a");
                         gameCard.href = game.path;
                         gameCard.className = "game-card";
+                        gameCard.style.animationDelay = index * 0.08 + "s";
 
                         if (game.icon) {
                             const gameIcon = document.createElement("div");
@@ -114,6 +585,7 @@
                                 const iconImg = document.createElement("img");
                                 iconImg.src = game.icon;
                                 iconImg.alt = game.title + " icon";
+                                iconImg.loading = "lazy";
                                 gameIcon.appendChild(iconImg);
                             } else {
                                 gameIcon.textContent = game.icon;
@@ -125,7 +597,6 @@
                         const gameTitle = document.createElement("h2");
                         gameTitle.className = "game-title";
                         gameTitle.textContent = game.title;
-
                         gameCard.appendChild(gameTitle);
 
                         if (game.description) {
@@ -135,15 +606,33 @@
                             gameCard.appendChild(gameDescription);
                         }
 
+                        // Play hint
+                        const playHint = document.createElement("div");
+                        playHint.className = "play-hint";
+                        playHint.innerHTML = `
+                            <span>あそぶ</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        `;
+                        gameCard.appendChild(playHint);
+
                         gameListElement.appendChild(gameCard);
                     });
+
+                    // Initialize card effects after cards are loaded
+                    initCardEffects();
                 } catch (error) {
                     console.error("ゲームの読み込みに失敗しました:", error);
-                    document.getElementById("gameList").innerHTML = "ゲームの読み込みに失敗しました。";
+                    document.getElementById("gameList").innerHTML =
+                        '<p style="text-align: center; color: var(--accent-pink);">ゲームの読み込みに失敗しました</p>';
                 }
             }
 
-            document.addEventListener("DOMContentLoaded", loadGames);
+            document.addEventListener("DOMContentLoaded", () => {
+                createBubbles();
+                loadGames();
+            });
         </script>
     </body>
 </html>
