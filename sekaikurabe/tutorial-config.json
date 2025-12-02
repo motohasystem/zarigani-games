@@ -7,7 +7,19 @@
       "url": "pages/page2.html"
     },
     {
-      "url": "pages/page3.html"
+      "url": "pages/page3.html",
+      "highlightId": "islandInput"
+    },
+    {
+      "url": "pages/page4.html",
+      "highlightId": "showBtn"
+    },
+    {
+      "url": "pages/page5.html",
+      "highlightId": "locationBtn"
+    },
+    {
+      "url": "pages/page6.html"
     }
   ]
 }

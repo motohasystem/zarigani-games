@@ -1,0 +1,34 @@
+<div>
+  <h2>表示ボタンで地名を表示</h2>
+  <p>国名や地名を入力したら、この「表示」ボタンをクリックします。</p>
+
+  <div style="text-align: center; margin: 20px 0;">
+    <svg width="180" height="120" viewBox="0 0 180 120">
+      <!-- 入力欄 -->
+      <rect x="10" y="30" width="100" height="30" fill="#fff" stroke="#999" stroke-width="2" rx="4"/>
+      <text x="60" y="50" text-anchor="middle" font-size="12" fill="#666">北海道</text>
+
+      <!-- 矢印 -->
+      <path d="M 120 45 L 140 45" stroke="#007bff" stroke-width="3" fill="none" marker-end="url(#arrowblue)"/>
+
+      <!-- ボタン -->
+      <rect x="145" y="30" width="50" height="30" fill="#3498db" rx="4"/>
+      <text x="170" y="50" text-anchor="middle" font-size="12" fill="#fff" font-weight="bold">表示</text>
+
+      <!-- 矢印定義 -->
+      <defs>
+        <marker id="arrowblue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L9,3 z" fill="#007bff" />
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <p style="color: #495057;">ボタンを押すと、入力した国や島のシルエットが、ピンを中心に地図上に重ねて表示されます。</p>
+
+  <div style="background-color: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107; margin-top: 16px;">
+    <p style="margin: 0; color: #856404; font-size: 14px;">
+      ⚡ <strong>音声入力の場合:</strong> 音声認識が終わると自動的に表示されます
+    </p>
+  </div>
+</div>
