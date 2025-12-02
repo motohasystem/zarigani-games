@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>わくわくベースボール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rounded Mplus 1c', 'Hiragino Maru Gothic ProN', sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            background: #4a7c59;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            display: block;
+            cursor: pointer;
+        }
+
+        #scoreBoard {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+            padding: 10px 30px;
+            border-radius: 15px;
+            border: 4px solid #8B4513;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 10;
+        }
+
+        #scoreBoard .inning {
+            font-size: 14px;
+            color: #8B4513;
+            font-weight: bold;
+        }
+
+        #scoreBoard .scores {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        #scoreBoard .team {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #scoreBoard .player {
+            color: #1E90FF;
+        }
+
+        #scoreBoard .cpu {
+            color: #FF4500;
+        }
+
+        #startScreen, #resultScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+        }
+
+        #startScreen h1, #resultScreen h1 {
+            font-size: 48px;
+            color: #FFD700;
+            text-shadow: 3px 3px 0 #8B4513;
+            margin-bottom: 20px;
+        }
+
+        #startScreen p {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 15px 50px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(180deg, #FF6B6B 0%, #EE5A5A 100%);
+            border: 4px solid #CC4444;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 6px 0 #AA3333;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #AA3333;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #AA3333;
+        }
+
+        #resultScreen .result-text {
+            font-size: 36px;
+            color: white;
+            margin: 20px 0;
+        }
+
+        #resultScreen .final-score {
+            font-size: 28px;
+            color: #FFD700;
+            margin-bottom: 30px;
+        }
+
+        #message {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #FFD700;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #message.show {
+            opacity: 1;
+        }
+
+        #countDisplay {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 10px;
+        }
+
+        .count-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .count-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .count-label {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            width: 20px;
+        }
+
+        .count-lamps {
+            display: flex;
+            gap: 5px;
+        }
+
+        .lamp {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid #666;
+        }
+
+        .lamp.strike.active {
+            background: #FFDD44;
+            box-shadow: 0 0 8px #FFDD44;
+        }
+
+        .lamp.out.active {
+            background: #FF4444;
+            box-shadow: 0 0 8px #FF4444;
+        }
+
+        #baseIndicator {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            z-index: 10;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div id="scoreBoard">
+            <div class="scores">
+                <div class="team player">スコア: <span id="playerScore">0</span>点</div>
+            </div>
+        </div>
+
+        <div id="countDisplay">
+            <div class="count-row">
+                <span class="count-label">S</span>
+                <div class="count-lamps">
+                    <div class="lamp strike" id="strike1"></div>
+                    <div class="lamp strike" id="strike2"></div>
+                </div>
+            </div>
+            <div class="count-row">
+                <span class="count-label">O</span>
+                <div class="count-lamps">
+                    <div class="lamp out" id="out1"></div>
+                    <div class="lamp out" id="out2"></div>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="baseIndicator" width="80" height="80"></canvas>
+
+        <div id="message"></div>
+
+        <div id="startScreen">
+            <h1>⚾ わくわくベースボール ⚾</h1>
+            <p>2アウトになるまでに何点取れるかな？<br>タイミングよくクリックしてホームランを打とう！</p>
+            <button class="btn" id="startBtn">ゲームスタート！</button>
+        </div>
+
+        <div id="resultScreen" class="hidden">
+            <h1>ゲーム終了！</h1>
+            <div class="result-text" id="resultText"></div>
+            <div class="final-score" id="finalScore"></div>
+            <button class="btn" id="restartBtn">もう一度プレイ</button>
+        </div>
+    </div>
+
+    <script>
+        // ゲーム設定
+        const CANVAS_WIDTH = 800;
+        const CANVAS_HEIGHT = 600;
+        const MAX_INNINGS = 3;
+
+        // キャンバス要素
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const baseCanvas = document.getElementById('baseIndicator');
+        const baseCtx = baseCanvas.getContext('2d');
+
+        // UI要素
+        const startScreen = document.getElementById('startScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const messageEl = document.getElementById('message');
+        const playerScoreEl = document.getElementById('playerScore');
+
+        // サウンド生成
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            switch(type) {
+                case 'hit':
+                    oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.2);
+                    break;
+                case 'homerun':
+                    oscillator.frequency.setValueAtTime(523, audioCtx.currentTime);
+                    oscillator.frequency.setValueAtTime(659, audioCtx.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(784, audioCtx.currentTime + 0.2);
+                    oscillator.frequency.setValueAtTime(1047, audioCtx.currentTime + 0.3);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.5);
+                    break;
+                case 'strike':
+                    oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.15);
+                    break;
+                case 'out':
+                    oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                    break;
+                case 'catch':
+                    oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.1);
+                    break;
+                case 'cheer':
+                    for (let i = 0; i < 5; i++) {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.frequency.setValueAtTime(400 + Math.random() * 400, audioCtx.currentTime + i * 0.1);
+                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime + i * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.1);
+                        osc.start(audioCtx.currentTime + i * 0.1);
+                        osc.stop(audioCtx.currentTime + i * 0.1 + 0.1);
+                    }
+                    break;
+                case 'pitch':
+                    oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.1);
+                    break;
+            }
+        }
+
+        // ゲーム状態
+        let gameState = {
+            phase: 'title', // title, batting, fielding, result
+            outs: 0,
+            strikes: 0,
+            playerScore: 0,
+            bases: [false, false, false], // 1塁, 2塁, 3塁
+            ball: null,
+            flyBall: null,
+            swingTiming: 0
+        };
+
+        // 色の定義（かわいい系）
+        const colors = {
+            grass: '#7EC850',
+            dirt: '#D4A76A',
+            sky: '#87CEEB',
+            playerTeam: '#4A90D9',
+            cpuTeam: '#E85D5D',
+            ball: '#FFFFFF',
+            bat: '#8B4513',
+            base: '#FFFFFF'
+        };
+
+        // ベース表示の更新
+        function drawBaseIndicator() {
+            baseCtx.clearRect(0, 0, 80, 80);
+
+            // 背景
+            baseCtx.fillStyle = colors.grass;
+            baseCtx.fillRect(0, 0, 80, 80);
+
+            // ダイヤモンド
+            baseCtx.strokeStyle = colors.dirt;
+            baseCtx.lineWidth = 2;
+            baseCtx.beginPath();
+            baseCtx.moveTo(40, 10); // 2塁
+            baseCtx.lineTo(70, 40); // 1塁
+            baseCtx.lineTo(40, 70); // ホーム
+            baseCtx.lineTo(10, 40); // 3塁
+            baseCtx.closePath();
+            baseCtx.stroke();
+
+            // ベース
+            const basePositions = [
+                {x: 70, y: 40}, // 1塁
+                {x: 40, y: 10}, // 2塁
+                {x: 10, y: 40}  // 3塁
+            ];
+
+            basePositions.forEach((pos, i) => {
+                baseCtx.fillStyle = gameState.bases[i] ? '#FFD700' : '#FFFFFF';
+                baseCtx.strokeStyle = '#8B4513';
+                baseCtx.lineWidth = 2;
+                baseCtx.save();
+                baseCtx.translate(pos.x, pos.y);
+                baseCtx.rotate(Math.PI / 4);
+                baseCtx.fillRect(-6, -6, 12, 12);
+                baseCtx.strokeRect(-6, -6, 12, 12);
+                baseCtx.restore();
+            });
+
+            // ホームベース
+            baseCtx.fillStyle = '#FFFFFF';
+            baseCtx.beginPath();
+            baseCtx.moveTo(40, 65);
+            baseCtx.lineTo(47, 70);
+            baseCtx.lineTo(47, 75);
+            baseCtx.lineTo(33, 75);
+            baseCtx.lineTo(33, 70);
+            baseCtx.closePath();
+            baseCtx.fill();
+            baseCtx.strokeStyle = '#8B4513';
+            baseCtx.stroke();
+        }
+
+        // カウント表示の更新
+        function updateCountDisplay() {
+            // ストライク
+            document.getElementById('strike1').classList.toggle('active', gameState.strikes >= 1);
+            document.getElementById('strike2').classList.toggle('active', gameState.strikes >= 2);
+            // アウト
+            document.getElementById('out1').classList.toggle('active', gameState.outs >= 1);
+            document.getElementById('out2').classList.toggle('active', gameState.outs >= 2);
+        }
+
+        // メッセージ表示
+        function showMessage(text, duration = 1500) {
+            messageEl.textContent = text;
+            messageEl.classList.add('show');
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, duration);
+        }
+
+        // スコアボード更新
+        function updateScoreBoard() {
+            playerScoreEl.textContent = gameState.playerScore;
+        }
+
+        // グラウンド描画
+        function drawField() {
+            // 空
+            ctx.fillStyle = colors.sky;
+            ctx.fillRect(0, 0, CANVAS_WIDTH, 200);
+
+            // 外野の芝生
+            ctx.fillStyle = colors.grass;
+            ctx.fillRect(0, 200, CANVAS_WIDTH, 400);
+
+            // 内野のダイヤモンド（土）
+            ctx.fillStyle = colors.dirt;
+            ctx.beginPath();
+            ctx.moveTo(400, 280); // 2塁
+            ctx.lineTo(600, 450); // 1塁
+            ctx.lineTo(400, 550); // ホーム
+            ctx.lineTo(200, 450); // 3塁
+            ctx.closePath();
+            ctx.fill();
+
+            // 芝生の内野部分
+            ctx.fillStyle = colors.grass;
+            ctx.beginPath();
+            ctx.moveTo(400, 320);
+            ctx.lineTo(540, 420);
+            ctx.lineTo(400, 480);
+            ctx.lineTo(260, 420);
+            ctx.closePath();
+            ctx.fill();
+
+            // ピッチャーマウンド
+            ctx.fillStyle = colors.dirt;
+            ctx.beginPath();
+            ctx.arc(400, 400, 25, 0, Math.PI * 2);
+            ctx.fill();
+
+            // ベースライン
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(400, 280);
+            ctx.lineTo(600, 450);
+            ctx.lineTo(400, 550);
+            ctx.lineTo(200, 450);
+            ctx.closePath();
+            ctx.stroke();
+
+            // 各ベース
+            drawBase(600, 450); // 1塁
+            drawBase(400, 280); // 2塁
+            drawBase(200, 450); // 3塁
+            drawHomeBase(400, 550); // ホーム
+
+            // バッターボックス
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(360, 520, 30, 50);
+            ctx.strokeRect(410, 520, 30, 50);
+
+            // フェンス
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(0, 180, CANVAS_WIDTH, 30);
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('HOME RUN ZONE', 400, 200);
+        }
+
+        function drawBase(x, y) {
+            ctx.fillStyle = colors.base;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(Math.PI / 4);
+            ctx.fillRect(-12, -12, 24, 24);
+            ctx.restore();
+        }
+
+        function drawHomeBase(x, y) {
+            ctx.fillStyle = colors.base;
+            ctx.beginPath();
+            ctx.moveTo(x, y - 12);
+            ctx.lineTo(x + 12, y);
+            ctx.lineTo(x + 12, y + 10);
+            ctx.lineTo(x - 12, y + 10);
+            ctx.lineTo(x - 12, y);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // かわいいキャラクター描画
+        function drawPlayer(x, y, color, isSwinging = false, direction = 0) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // 体
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.ellipse(0, 10, 18, 22, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 顔
+            ctx.fillStyle = '#FFE4C4';
+            ctx.beginPath();
+            ctx.arc(0, -15, 20, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 帽子
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.ellipse(0, -28, 22, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillRect(-15, -35, 30, 10);
+
+            // 目
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(-7, -18, 4, 0, Math.PI * 2);
+            ctx.arc(7, -18, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 目のハイライト
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(-5, -20, 2, 0, Math.PI * 2);
+            ctx.arc(9, -20, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 口（笑顔）
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, -10, 6, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+
+            // ほっぺ
+            ctx.fillStyle = '#FFB6C1';
+            ctx.beginPath();
+            ctx.ellipse(-15, -12, 5, 3, 0, 0, Math.PI * 2);
+            ctx.ellipse(15, -12, 5, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // バット（バッターの場合）
+            if (isSwinging) {
+                ctx.save();
+                ctx.rotate(direction);
+                ctx.fillStyle = colors.bat;
+                ctx.fillRect(15, -5, 50, 8);
+                ctx.fillStyle = '#A0522D';
+                ctx.fillRect(55, -7, 15, 12);
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        // ボール描画
+        function drawBall(x, y, size = 10) {
+            ctx.fillStyle = colors.ball;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 縫い目
+            ctx.strokeStyle = '#FF0000';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(x - 3, y, 5, 0.5, 2.5);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(x + 3, y, 5, -2.5, -0.5);
+            ctx.stroke();
+        }
+
+        // ランナー表示
+        function drawRunners() {
+            const runnerPositions = [
+                {x: 600, y: 430}, // 1塁
+                {x: 400, y: 260}, // 2塁
+                {x: 200, y: 430}  // 3塁
+            ];
+
+            gameState.bases.forEach((hasRunner, i) => {
+                if (hasRunner) {
+                    drawPlayer(runnerPositions[i].x, runnerPositions[i].y, colors.playerTeam);
+                }
+            });
+        }
+
+        // バッティングシーン
+        function drawBattingScene() {
+            drawField();
+            drawRunners();
+
+            // ピッチャー（CPU）
+            drawPlayer(400, 380, colors.cpuTeam);
+
+            // バッター（プレイヤー）
+            const swingAngle = gameState.swingTiming > 0 ?
+                Math.min((Date.now() - gameState.swingTiming) / 100, 1) * Math.PI * 0.7 - Math.PI * 0.3 :
+                -Math.PI * 0.3;
+            drawPlayer(370, 530, colors.playerTeam, true, swingAngle);
+
+            // キャッチャー（CPU）
+            drawPlayer(400, 580, colors.cpuTeam);
+
+            // ボール
+            if (gameState.ball) {
+                const ballSize = 10 + (1 - gameState.ball.progress) * 5;
+                drawBall(gameState.ball.x, gameState.ball.y, ballSize);
+            }
+
+            // スイングガイド
+            if (gameState.phase === 'batting' && gameState.ball && !gameState.swingTiming) {
+                ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+                ctx.beginPath();
+                ctx.arc(400, 520, 40, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+        }
+
+        // 守備シーン
+        function drawFieldingScene() {
+            drawField();
+
+            const fielderColor = colors.cpuTeam;
+
+            // 野手配置
+            const fielderPositions = [
+                {x: 400, y: 380}, // ピッチャー
+                {x: 400, y: 560}, // キャッチャー
+                {x: 580, y: 470}, // 1塁手
+                {x: 480, y: 350}, // 2塁手
+                {x: 320, y: 350}, // 遊撃手
+                {x: 220, y: 470}, // 3塁手
+                {x: 250, y: 250}, // 左翼手
+                {x: 400, y: 220}, // 中堅手
+                {x: 550, y: 250}  // 右翼手
+            ];
+
+            fielderPositions.forEach(pos => {
+                drawPlayer(pos.x, pos.y, fielderColor);
+            });
+
+            // フライボール
+            if (gameState.flyBall) {
+                const ball = gameState.flyBall;
+                const shadowSize = 15 * (1 - ball.height / 200);
+
+                // 影
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.beginPath();
+                ctx.ellipse(ball.targetX, ball.targetY, shadowSize, shadowSize * 0.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // ボール
+                const ballSize = 8 + ball.height / 30;
+                drawBall(ball.x, ball.y - ball.height, ballSize);
+            }
+        }
+
+        // ゲームループ
+        function gameLoop() {
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            switch(gameState.phase) {
+                case 'title':
+                    drawField();
+                    break;
+                case 'batting':
+                case 'pitching':
+                    drawBattingScene();
+                    updateBall();
+                    break;
+                case 'fielding':
+                    drawFieldingScene();
+                    updateFlyBall();
+                    break;
+                case 'result':
+                    drawField();
+                    break;
+            }
+
+            drawBaseIndicator();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ボール更新
+        function updateBall() {
+            if (!gameState.ball) return;
+
+            gameState.ball.progress += 0.02;
+
+            if (gameState.ball.progress >= 1) {
+                // ボールがホームに到達
+                if (!gameState.swingTiming) {
+                    // 見逃し
+                    handleStrike();
+                }
+                gameState.ball = null;
+            } else {
+                // ボールの位置更新
+                gameState.ball.x = 400;
+                gameState.ball.y = 380 + (520 - 380) * gameState.ball.progress;
+            }
+        }
+
+        // フライボール更新
+        function updateFlyBall() {
+            if (!gameState.flyBall) return;
+
+            const ball = gameState.flyBall;
+            ball.progress += 0.015;
+
+            // 放物線の計算
+            const t = ball.progress;
+            ball.x = ball.startX + (ball.targetX - ball.startX) * t;
+            ball.y = ball.startY + (ball.targetY - ball.startY) * t;
+            ball.height = 200 * Math.sin(Math.PI * t);
+
+            if (ball.progress >= 1) {
+                // ボールが落下
+                if (ball.caught) {
+                    playSound('catch');
+                    showMessage('アウト！');
+                    handleOut();
+                } else {
+                    // ヒット処理
+                    processHit(ball.hitType);
+                }
+                gameState.flyBall = null;
+            }
+        }
+
+        // ストライク処理
+        function handleStrike() {
+            playSound('strike');
+            gameState.strikes++;
+            updateCountDisplay();
+
+            if (gameState.strikes >= 3) {
+                showMessage('三振！アウト！');
+                gameState.strikes = 0;
+                updateCountDisplay();
+                handleOut();
+            } else {
+                showMessage(`ストライク！`);
+                setTimeout(() => {
+                    startAtBat();
+                }, 1000);
+            }
+        }
+
+        // アウト処理
+        function handleOut() {
+            playSound('out');
+            gameState.outs++;
+            gameState.strikes = 0; // ストライクカウントリセット
+            updateCountDisplay();
+
+            if (gameState.outs >= 2) {
+                // ゲーム終了
+                setTimeout(() => {
+                    endGame();
+                }, 1000);
+            } else {
+                setTimeout(() => {
+                    startAtBat();
+                }, 1000);
+            }
+        }
+
+        // ヒット処理
+        function processHit(hitType) {
+            let runs = 0;
+            let message = '';
+
+            switch(hitType) {
+                case 'single':
+                    message = 'シングルヒット！';
+                    if (gameState.bases[2]) { runs++; gameState.bases[2] = false; }
+                    if (gameState.bases[1]) { gameState.bases[2] = true; gameState.bases[1] = false; }
+                    if (gameState.bases[0]) { gameState.bases[1] = true; }
+                    gameState.bases[0] = true;
+                    playSound('hit');
+                    break;
+                case 'double':
+                    message = 'ツーベースヒット！';
+                    if (gameState.bases[2]) { runs++; gameState.bases[2] = false; }
+                    if (gameState.bases[1]) { runs++; }
+                    if (gameState.bases[0]) { gameState.bases[2] = true; gameState.bases[0] = false; }
+                    gameState.bases[1] = true;
+                    playSound('hit');
+                    break;
+                case 'triple':
+                    message = 'スリーベースヒット！';
+                    if (gameState.bases[2]) runs++;
+                    if (gameState.bases[1]) runs++;
+                    if (gameState.bases[0]) runs++;
+                    gameState.bases = [false, false, true];
+                    playSound('hit');
+                    break;
+                case 'homerun':
+                    message = 'ホームラン！！';
+                    runs = 1;
+                    if (gameState.bases[0]) runs++;
+                    if (gameState.bases[1]) runs++;
+                    if (gameState.bases[2]) runs++;
+                    gameState.bases = [false, false, false];
+                    playSound('homerun');
+                    setTimeout(() => playSound('cheer'), 300);
+                    break;
+            }
+
+            // 得点加算
+            gameState.playerScore += runs;
+            gameState.strikes = 0; // ストライクカウントリセット
+
+            showMessage(message + (runs > 0 ? ` ${runs}点！` : ''));
+            updateScoreBoard();
+            updateCountDisplay();
+            drawBaseIndicator();
+
+            setTimeout(() => {
+                startAtBat();
+            }, 1500);
+        }
+
+        // 打席開始
+        function startAtBat() {
+            gameState.swingTiming = 0;
+            gameState.phase = 'batting';
+            setTimeout(() => {
+                pitchBall();
+            }, 1000);
+        }
+
+        // 投球
+        function pitchBall() {
+            playSound('pitch');
+            gameState.ball = {
+                x: 400,
+                y: 380,
+                progress: 0
+            };
+        }
+
+        // プレイヤーのスイング
+        function playerSwing() {
+            if (gameState.phase !== 'batting' || !gameState.ball || gameState.swingTiming) return;
+
+            gameState.swingTiming = Date.now();
+            playSound('hit');
+
+            // タイミング判定
+            const timing = gameState.ball.progress;
+            let hitResult = null;
+
+            if (timing >= 0.7 && timing <= 0.85) {
+                // 完璧なタイミング
+                const rand = Math.random();
+                if (rand < 0.4) hitResult = 'homerun';
+                else if (rand < 0.7) hitResult = 'triple';
+                else hitResult = 'double';
+            } else if (timing >= 0.6 && timing <= 0.9) {
+                // 良いタイミング
+                const rand = Math.random();
+                if (rand < 0.2) hitResult = 'homerun';
+                else if (rand < 0.5) hitResult = 'double';
+                else hitResult = 'single';
+            } else if (timing >= 0.5 && timing <= 0.95) {
+                // まあまあのタイミング
+                const rand = Math.random();
+                if (rand < 0.4) hitResult = 'single';
+                else hitResult = 'flyout';
+            } else {
+                hitResult = 'flyout';
+            }
+
+            setTimeout(() => {
+                if (hitResult === 'flyout') {
+                    // フライアウト→守備シーン
+                    startFielding();
+                } else {
+                    // ヒット
+                    processHit(hitResult);
+                }
+                gameState.ball = null;
+            }, 300);
+        }
+
+        // 守備開始（自動化）
+        function startFielding() {
+            gameState.phase = 'fielding';
+
+            // フライボールの目標地点をランダムに設定
+            const targetX = 150 + Math.random() * 500;
+            const targetY = 220 + Math.random() * 200;
+
+            gameState.flyBall = {
+                startX: 400,
+                startY: 520,
+                targetX: targetX,
+                targetY: targetY,
+                x: 400,
+                y: 520,
+                height: 0,
+                progress: 0,
+                hitType: 'flyout',
+                caught: false
+            };
+
+            // 守備は自動（70%でキャッチ成功）
+            setTimeout(() => {
+                if (gameState.flyBall) {
+                    gameState.flyBall.caught = Math.random() < 0.7;
+                    if (!gameState.flyBall.caught) {
+                        // エラー→シングルヒット扱い
+                        gameState.flyBall.hitType = 'single';
+                    }
+                }
+            }, 1000);
+        }
+
+        // ゲーム終了
+        function endGame() {
+            gameState.phase = 'result';
+
+            playSound('cheer');
+
+            document.getElementById('resultText').textContent = 'あなたの記録';
+            document.getElementById('finalScore').textContent =
+                `${gameState.playerScore}点`;
+
+            resultScreen.classList.remove('hidden');
+        }
+
+        // ゲーム開始
+        function startGame() {
+            initAudio();
+
+            gameState = {
+                phase: 'batting',
+                outs: 0,
+                strikes: 0,
+                playerScore: 0,
+                bases: [false, false, false],
+                ball: null,
+                flyBall: null,
+                swingTiming: 0
+            };
+
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            updateScoreBoard();
+            updateCountDisplay();
+            drawBaseIndicator();
+
+            showMessage('プレイボール！');
+
+            setTimeout(() => {
+                startAtBat();
+            }, 1500);
+        }
+
+        // イベントリスナー
+        canvas.addEventListener('click', (e) => {
+            if (gameState.phase === 'batting') {
+                playerSwing();
+            }
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState.phase === 'batting') {
+                playerSwing();
+            }
+        });
+
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+
+        // ゲームループ開始
+        gameLoop();
+        drawBaseIndicator();
+    </script>
+</body>
+</html>
