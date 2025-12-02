@@ -26,17 +26,31 @@
     },
     {
         "path": "./sekaikurabe/",
-        "title": "セカイクラベ ─ 国の大きさ、感じてみたい？",
+        "title": "セカイクラベ",
+        "description": "国の大きさ、感じてみたい？",
         "icon": "🌏"
     },
     {
         "path": "./uchukurabe/",
-        "title": "ウチュークラベ ─ 天体のサイズを比較してみよう！",
+        "title": "ウチュークラベ",
+        "description": "天体のサイズを比較してみよう！",
         "icon": "🌌"
     },
     {
         "path": "./sakana-kurabe/",
         "title": "魚サイズくらべアクアリウム 🐟",
         "icon": "🐟"
+    },
+    {
+        "path": "./baseball/",
+        "title": "わくわくベースボール",
+        "description": "広野5年KMS特別授業(2025)",
+        "icon": "⚾"
+    },
+    {
+        "path": "./ebifly/",
+        "title": "エビフライの星キャッチ",
+        "description": "神領4年KMS特別授業(2025)",
+        "icon": "🦐"
     }
 ]
