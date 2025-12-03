@@ -344,6 +344,32 @@
                 line-height: 1.5;
             }
 
+            .game-platforms {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                display: flex;
+                gap: 4px;
+                font-size: 1rem;
+                opacity: 0.7;
+                transition: opacity 0.3s;
+            }
+
+            .game-card:hover .game-platforms {
+                opacity: 1;
+            }
+
+            .platform-icon {
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 6px;
+                font-size: 0.85rem;
+            }
+
             .play-hint {
                 display: flex;
                 align-items: center;
@@ -572,6 +598,19 @@
                         gameCard.href = game.path;
                         gameCard.className = "game-card";
                         gameCard.style.animationDelay = index * 0.08 + "s";
+
+                        // Platforms
+                        if (game.platforms && game.platforms.length > 0) {
+                            const platforms = document.createElement("div");
+                            platforms.className = "game-platforms";
+                            game.platforms.forEach((platform) => {
+                                const icon = document.createElement("span");
+                                icon.className = "platform-icon";
+                                icon.textContent = platform;
+                                platforms.appendChild(icon);
+                            });
+                            gameCard.appendChild(platforms);
+                        }
 
                         if (game.icon) {
                             const gameIcon = document.createElement("div");
