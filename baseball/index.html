@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>わくわくベースボール</title>
     <style>
         * {
@@ -15,10 +15,13 @@
             font-family: 'Rounded Mplus 1c', 'Hiragino Maru Gothic ProN', sans-serif;
             background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         #gameContainer {
@@ -217,6 +220,95 @@
         .hidden {
             display: none !important;
         }
+
+        /* スマホ対応 */
+        @media screen and (max-width: 600px) {
+            #gameContainer {
+                border-radius: 0;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+            }
+
+            #scoreBoard {
+                padding: 6px 15px;
+                border-radius: 10px;
+                border-width: 2px;
+            }
+
+            #scoreBoard .team {
+                font-size: 14px;
+            }
+
+            #startScreen h1, #resultScreen h1 {
+                font-size: 28px;
+                margin-bottom: 15px;
+            }
+
+            #startScreen p {
+                font-size: 14px;
+                padding: 0 20px;
+                margin-bottom: 20px;
+            }
+
+            .btn {
+                padding: 12px 35px;
+                font-size: 18px;
+                border-width: 3px;
+            }
+
+            #resultScreen .result-text {
+                font-size: 24px;
+            }
+
+            #resultScreen .final-score {
+                font-size: 22px;
+            }
+
+            #message {
+                bottom: 60px;
+                font-size: 16px;
+                padding: 8px 18px;
+            }
+
+            #countDisplay {
+                top: 50px;
+                right: 10px;
+                padding: 5px 8px;
+            }
+
+            .count-label {
+                font-size: 12px;
+                width: 16px;
+            }
+
+            .lamp {
+                width: 16px;
+                height: 16px;
+            }
+
+            #baseIndicator {
+                top: 50px;
+                left: 10px;
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        @media screen and (max-width: 400px) {
+            #startScreen h1, #resultScreen h1 {
+                font-size: 24px;
+            }
+
+            #startScreen p {
+                font-size: 12px;
+            }
+
+            .btn {
+                padding: 10px 30px;
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -242,6 +334,7 @@
                 <div class="count-lamps">
                     <div class="lamp out" id="out1"></div>
                     <div class="lamp out" id="out2"></div>
+                    <div class="lamp out" id="out3"></div>
                 </div>
             </div>
         </div>
@@ -252,7 +345,7 @@
 
         <div id="startScreen">
             <h1>⚾ わくわくベースボール ⚾</h1>
-            <p>2アウトになるまでに何点取れるかな？<br>タイミングよくクリックしてホームランを打とう！</p>
+            <p>3アウトになるまでに何点取れるかな？<br>タイミングよくタップしてホームランを打とう！</p>
             <button class="btn" id="startBtn">ゲームスタート！</button>
         </div>
 
@@ -265,16 +358,82 @@
     </div>
 
     <script>
-        // ゲーム設定
-        const CANVAS_WIDTH = 800;
-        const CANVAS_HEIGHT = 600;
+        // ゲーム設定（基準サイズ）
+        const BASE_WIDTH = 800;
+        const BASE_HEIGHT = 600;
         const MAX_INNINGS = 3;
+
+        // 実際のキャンバスサイズ（動的に変更）
+        let CANVAS_WIDTH = 800;
+        let CANVAS_HEIGHT = 600;
+        let scale = 1;
 
         // キャンバス要素
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const baseCanvas = document.getElementById('baseIndicator');
         const baseCtx = baseCanvas.getContext('2d');
+
+        // 画面リサイズ処理
+        function resizeCanvas() {
+            const container = document.getElementById('gameContainer');
+            const isMobile = window.innerWidth <= 600;
+
+            if (isMobile) {
+                // スマホ：画面いっぱいに広げる
+                CANVAS_WIDTH = window.innerWidth;
+                CANVAS_HEIGHT = window.innerHeight;
+            } else {
+                // PC：固定サイズ
+                CANVAS_WIDTH = BASE_WIDTH;
+                CANVAS_HEIGHT = BASE_HEIGHT;
+            }
+
+            // キャンバスサイズ更新
+            canvas.width = CANVAS_WIDTH;
+            canvas.height = CANVAS_HEIGHT;
+
+            // スケールを計算（基準サイズに対する比率）
+            scale = Math.min(CANVAS_WIDTH / BASE_WIDTH, CANVAS_HEIGHT / BASE_HEIGHT);
+
+            // コンテナサイズ更新
+            if (isMobile) {
+                container.style.width = CANVAS_WIDTH + 'px';
+                container.style.height = CANVAS_HEIGHT + 'px';
+            } else {
+                container.style.width = '';
+                container.style.height = '';
+            }
+
+            // ベースインジケーターもリサイズ
+            if (isMobile) {
+                baseCanvas.width = 60;
+                baseCanvas.height = 60;
+            } else {
+                baseCanvas.width = 80;
+                baseCanvas.height = 80;
+            }
+
+            drawBaseIndicator();
+        }
+
+        // 座標変換（基準座標→実際の座標）
+        function scaleX(x) {
+            return x * scale + (CANVAS_WIDTH - BASE_WIDTH * scale) / 2;
+        }
+
+        function scaleY(y) {
+            return y * scale + (CANVAS_HEIGHT - BASE_HEIGHT * scale) / 2;
+        }
+
+        function scaleSize(size) {
+            return size * scale;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resizeCanvas, 100);
+        });
 
         // UI要素
         const startScreen = document.getElementById('startScreen');
@@ -394,50 +553,54 @@
 
         // ベース表示の更新
         function drawBaseIndicator() {
-            baseCtx.clearRect(0, 0, 80, 80);
+            const w = baseCanvas.width;
+            const h = baseCanvas.height;
+            const s = w / 80; // スケール係数
+
+            baseCtx.clearRect(0, 0, w, h);
 
             // 背景
             baseCtx.fillStyle = colors.grass;
-            baseCtx.fillRect(0, 0, 80, 80);
+            baseCtx.fillRect(0, 0, w, h);
 
             // ダイヤモンド
             baseCtx.strokeStyle = colors.dirt;
-            baseCtx.lineWidth = 2;
+            baseCtx.lineWidth = 2 * s;
             baseCtx.beginPath();
-            baseCtx.moveTo(40, 10); // 2塁
-            baseCtx.lineTo(70, 40); // 1塁
-            baseCtx.lineTo(40, 70); // ホーム
-            baseCtx.lineTo(10, 40); // 3塁
+            baseCtx.moveTo(40 * s, 10 * s); // 2塁
+            baseCtx.lineTo(70 * s, 40 * s); // 1塁
+            baseCtx.lineTo(40 * s, 70 * s); // ホーム
+            baseCtx.lineTo(10 * s, 40 * s); // 3塁
             baseCtx.closePath();
             baseCtx.stroke();
 
             // ベース
             const basePositions = [
-                {x: 70, y: 40}, // 1塁
-                {x: 40, y: 10}, // 2塁
-                {x: 10, y: 40}  // 3塁
+                {x: 70 * s, y: 40 * s}, // 1塁
+                {x: 40 * s, y: 10 * s}, // 2塁
+                {x: 10 * s, y: 40 * s}  // 3塁
             ];
 
             basePositions.forEach((pos, i) => {
                 baseCtx.fillStyle = gameState.bases[i] ? '#FFD700' : '#FFFFFF';
                 baseCtx.strokeStyle = '#8B4513';
-                baseCtx.lineWidth = 2;
+                baseCtx.lineWidth = 2 * s;
                 baseCtx.save();
                 baseCtx.translate(pos.x, pos.y);
                 baseCtx.rotate(Math.PI / 4);
-                baseCtx.fillRect(-6, -6, 12, 12);
-                baseCtx.strokeRect(-6, -6, 12, 12);
+                baseCtx.fillRect(-6 * s, -6 * s, 12 * s, 12 * s);
+                baseCtx.strokeRect(-6 * s, -6 * s, 12 * s, 12 * s);
                 baseCtx.restore();
             });
 
             // ホームベース
             baseCtx.fillStyle = '#FFFFFF';
             baseCtx.beginPath();
-            baseCtx.moveTo(40, 65);
-            baseCtx.lineTo(47, 70);
-            baseCtx.lineTo(47, 75);
-            baseCtx.lineTo(33, 75);
-            baseCtx.lineTo(33, 70);
+            baseCtx.moveTo(40 * s, 65 * s);
+            baseCtx.lineTo(47 * s, 70 * s);
+            baseCtx.lineTo(47 * s, 75 * s);
+            baseCtx.lineTo(33 * s, 75 * s);
+            baseCtx.lineTo(33 * s, 70 * s);
             baseCtx.closePath();
             baseCtx.fill();
             baseCtx.strokeStyle = '#8B4513';
@@ -452,6 +615,7 @@
             // アウト
             document.getElementById('out1').classList.toggle('active', gameState.outs >= 1);
             document.getElementById('out2').classList.toggle('active', gameState.outs >= 2);
+            document.getElementById('out3').classList.toggle('active', gameState.outs >= 3);
         }
 
         // メッセージ表示
@@ -472,87 +636,88 @@
         function drawField() {
             // 空
             ctx.fillStyle = colors.sky;
-            ctx.fillRect(0, 0, CANVAS_WIDTH, 200);
+            ctx.fillRect(0, 0, CANVAS_WIDTH, scaleY(200));
 
             // 外野の芝生
             ctx.fillStyle = colors.grass;
-            ctx.fillRect(0, 200, CANVAS_WIDTH, 400);
+            ctx.fillRect(0, scaleY(200), CANVAS_WIDTH, CANVAS_HEIGHT);
 
             // 内野のダイヤモンド（土）
             ctx.fillStyle = colors.dirt;
             ctx.beginPath();
-            ctx.moveTo(400, 280); // 2塁
-            ctx.lineTo(600, 450); // 1塁
-            ctx.lineTo(400, 550); // ホーム
-            ctx.lineTo(200, 450); // 3塁
+            ctx.moveTo(scaleX(400), scaleY(280)); // 2塁
+            ctx.lineTo(scaleX(600), scaleY(450)); // 1塁
+            ctx.lineTo(scaleX(400), scaleY(550)); // ホーム
+            ctx.lineTo(scaleX(200), scaleY(450)); // 3塁
             ctx.closePath();
             ctx.fill();
 
             // 芝生の内野部分
             ctx.fillStyle = colors.grass;
             ctx.beginPath();
-            ctx.moveTo(400, 320);
-            ctx.lineTo(540, 420);
-            ctx.lineTo(400, 480);
-            ctx.lineTo(260, 420);
+            ctx.moveTo(scaleX(400), scaleY(320));
+            ctx.lineTo(scaleX(540), scaleY(420));
+            ctx.lineTo(scaleX(400), scaleY(480));
+            ctx.lineTo(scaleX(260), scaleY(420));
             ctx.closePath();
             ctx.fill();
 
             // ピッチャーマウンド
             ctx.fillStyle = colors.dirt;
             ctx.beginPath();
-            ctx.arc(400, 400, 25, 0, Math.PI * 2);
+            ctx.arc(scaleX(400), scaleY(400), scaleSize(25), 0, Math.PI * 2);
             ctx.fill();
 
             // ベースライン
             ctx.strokeStyle = '#FFFFFF';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = scaleSize(3);
             ctx.beginPath();
-            ctx.moveTo(400, 280);
-            ctx.lineTo(600, 450);
-            ctx.lineTo(400, 550);
-            ctx.lineTo(200, 450);
+            ctx.moveTo(scaleX(400), scaleY(280));
+            ctx.lineTo(scaleX(600), scaleY(450));
+            ctx.lineTo(scaleX(400), scaleY(550));
+            ctx.lineTo(scaleX(200), scaleY(450));
             ctx.closePath();
             ctx.stroke();
 
             // 各ベース
-            drawBase(600, 450); // 1塁
             drawBase(400, 280); // 2塁
+            drawBase(600, 450); // 1塁
             drawBase(200, 450); // 3塁
             drawHomeBase(400, 550); // ホーム
 
             // バッターボックス
             ctx.strokeStyle = '#FFFFFF';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(360, 520, 30, 50);
-            ctx.strokeRect(410, 520, 30, 50);
+            ctx.lineWidth = scaleSize(2);
+            ctx.strokeRect(scaleX(360), scaleY(520), scaleSize(30), scaleSize(50));
+            ctx.strokeRect(scaleX(410), scaleY(520), scaleSize(30), scaleSize(50));
 
             // フェンス
             ctx.fillStyle = '#228B22';
-            ctx.fillRect(0, 180, CANVAS_WIDTH, 30);
+            ctx.fillRect(0, scaleY(180), CANVAS_WIDTH, scaleSize(30));
             ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 14px Arial';
+            ctx.font = `bold ${Math.max(10, scaleSize(14))}px Arial`;
             ctx.textAlign = 'center';
-            ctx.fillText('HOME RUN ZONE', 400, 200);
+            ctx.fillText('HOME RUN ZONE', scaleX(400), scaleY(200));
         }
 
         function drawBase(x, y) {
             ctx.fillStyle = colors.base;
             ctx.save();
-            ctx.translate(x, y);
+            ctx.translate(scaleX(x), scaleY(y));
             ctx.rotate(Math.PI / 4);
-            ctx.fillRect(-12, -12, 24, 24);
+            const baseSize = scaleSize(12);
+            ctx.fillRect(-baseSize, -baseSize, baseSize * 2, baseSize * 2);
             ctx.restore();
         }
 
         function drawHomeBase(x, y) {
             ctx.fillStyle = colors.base;
             ctx.beginPath();
-            ctx.moveTo(x, y - 12);
-            ctx.lineTo(x + 12, y);
-            ctx.lineTo(x + 12, y + 10);
-            ctx.lineTo(x - 12, y + 10);
-            ctx.lineTo(x - 12, y);
+            ctx.moveTo(scaleX(x), scaleY(y) - scaleSize(12));
+            ctx.lineTo(scaleX(x) + scaleSize(12), scaleY(y));
+            ctx.lineTo(scaleX(x) + scaleSize(12), scaleY(y) + scaleSize(10));
+            ctx.lineTo(scaleX(x) - scaleSize(12), scaleY(y) + scaleSize(10));
+            ctx.lineTo(scaleX(x) - scaleSize(12), scaleY(y));
             ctx.closePath();
             ctx.fill();
         }
@@ -560,7 +725,8 @@
         // かわいいキャラクター描画
         function drawPlayer(x, y, color, isSwinging = false, direction = 0) {
             ctx.save();
-            ctx.translate(x, y);
+            ctx.translate(scaleX(x), scaleY(y));
+            ctx.scale(scale, scale);
 
             // 体
             ctx.fillStyle = color;
@@ -625,19 +791,23 @@
 
         // ボール描画
         function drawBall(x, y, size = 10) {
+            const sx = scaleX(x);
+            const sy = scaleY(y);
+            const ss = scaleSize(size);
+
             ctx.fillStyle = colors.ball;
             ctx.beginPath();
-            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.arc(sx, sy, ss, 0, Math.PI * 2);
             ctx.fill();
 
             // 縫い目
             ctx.strokeStyle = '#FF0000';
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = scaleSize(1.5);
             ctx.beginPath();
-            ctx.arc(x - 3, y, 5, 0.5, 2.5);
+            ctx.arc(sx - scaleSize(3), sy, scaleSize(5), 0.5, 2.5);
             ctx.stroke();
             ctx.beginPath();
-            ctx.arc(x + 3, y, 5, -2.5, -0.5);
+            ctx.arc(sx + scaleSize(3), sy, scaleSize(5), -2.5, -0.5);
             ctx.stroke();
         }
 
@@ -683,10 +853,10 @@
             if (gameState.phase === 'batting' && gameState.ball && !gameState.swingTiming) {
                 ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
                 ctx.beginPath();
-                ctx.arc(400, 520, 40, 0, Math.PI * 2);
+                ctx.arc(scaleX(400), scaleY(520), scaleSize(40), 0, Math.PI * 2);
                 ctx.fill();
                 ctx.strokeStyle = '#FFD700';
-                ctx.lineWidth = 3;
+                ctx.lineWidth = scaleSize(3);
                 ctx.stroke();
             }
         }
@@ -717,17 +887,45 @@
             // フライボール
             if (gameState.flyBall) {
                 const ball = gameState.flyBall;
-                const shadowSize = 15 * (1 - ball.height / 200);
+                const maxH = ball.maxHeight || 200;
+                const shadowSize = 15 * (1 - ball.height / maxH);
 
-                // 影
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.beginPath();
-                ctx.ellipse(ball.targetX, ball.targetY, shadowSize, shadowSize * 0.5, 0, 0, Math.PI * 2);
-                ctx.fill();
+                // ホームランの場合、フェンスを越えたら影を表示しない
+                if (!ball.isHomerun || ball.y > 180) {
+                    // 影
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                    ctx.beginPath();
+                    ctx.ellipse(scaleX(ball.targetX), scaleY(ball.targetY), scaleSize(shadowSize), scaleSize(shadowSize * 0.5), 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
 
                 // ボール
                 const ballSize = 8 + ball.height / 30;
                 drawBall(ball.x, ball.y - ball.height, ballSize);
+
+                // ホームランエフェクト（フェンスを越えた時）
+                if (ball.isHomerun && ball.y < 200) {
+                    // キラキラエフェクト
+                    const sparkleTime = Date.now() / 100;
+                    for (let i = 0; i < 5; i++) {
+                        const angle = sparkleTime + i * (Math.PI * 2 / 5);
+                        const sparkleX = ball.x + Math.cos(angle) * 30;
+                        const sparkleY = ball.y - ball.height + Math.sin(angle) * 30;
+                        ctx.fillStyle = '#FFD700';
+                        ctx.beginPath();
+                        ctx.arc(scaleX(sparkleX), scaleY(sparkleY), scaleSize(4), 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    // HOME RUN テキスト
+                    ctx.fillStyle = '#FFD700';
+                    ctx.strokeStyle = '#FF4500';
+                    ctx.lineWidth = scaleSize(3);
+                    ctx.font = `bold ${scaleSize(30)}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.strokeText('HOME RUN!', scaleX(400), scaleY(300));
+                    ctx.fillText('HOME RUN!', scaleX(400), scaleY(300));
+                }
             }
         }
 
@@ -789,11 +987,14 @@
             const t = ball.progress;
             ball.x = ball.startX + (ball.targetX - ball.startX) * t;
             ball.y = ball.startY + (ball.targetY - ball.startY) * t;
-            ball.height = 200 * Math.sin(Math.PI * t);
+            ball.height = (ball.maxHeight || 200) * Math.sin(Math.PI * t);
 
             if (ball.progress >= 1) {
                 // ボールが落下
-                if (ball.caught) {
+                if (ball.isHomerun) {
+                    // ホームラン処理
+                    processHit('homerun');
+                } else if (ball.caught) {
                     playSound('catch');
                     showMessage('アウト！');
                     handleOut();
@@ -831,7 +1032,7 @@
             gameState.strikes = 0; // ストライクカウントリセット
             updateCountDisplay();
 
-            if (gameState.outs >= 2) {
+            if (gameState.outs >= 3) {
                 // ゲーム終了
                 setTimeout(() => {
                     endGame();
@@ -953,7 +1154,10 @@
             setTimeout(() => {
                 if (hitResult === 'flyout') {
                     // フライアウト→守備シーン
-                    startFielding();
+                    startFielding('flyout');
+                } else if (hitResult === 'homerun') {
+                    // ホームラン→ボールが飛んでいくアニメーション
+                    startFielding('homerun');
                 } else {
                     // ヒット
                     processHit(hitResult);
@@ -963,12 +1167,30 @@
         }
 
         // 守備開始（自動化）
-        function startFielding() {
+        function startFielding(hitType = 'flyout') {
             gameState.phase = 'fielding';
 
-            // フライボールの目標地点をランダムに設定
-            const targetX = 150 + Math.random() * 500;
-            const targetY = 220 + Math.random() * 200;
+            let targetX, targetY, maxHeight;
+            let caught = false;
+
+            if (hitType === 'homerun') {
+                // ホームラン：フェンスを越える
+                targetX = 300 + Math.random() * 200;
+                targetY = 100 + Math.random() * 50; // フェンスより上
+                maxHeight = 250;
+                caught = false; // ホームランはキャッチされない
+            } else {
+                // フライアウト：フィールド内
+                targetX = 150 + Math.random() * 500;
+                targetY = 220 + Math.random() * 200;
+                maxHeight = 200;
+                // 守備は自動（70%でキャッチ成功）
+                caught = Math.random() < 0.7;
+                if (!caught) {
+                    // エラー→シングルヒット扱い
+                    hitType = 'single';
+                }
+            }
 
             gameState.flyBall = {
                 startX: 400,
@@ -978,21 +1200,12 @@
                 x: 400,
                 y: 520,
                 height: 0,
+                maxHeight: maxHeight,
                 progress: 0,
-                hitType: 'flyout',
-                caught: false
+                hitType: hitType,
+                caught: caught,
+                isHomerun: hitType === 'homerun'
             };
-
-            // 守備は自動（70%でキャッチ成功）
-            setTimeout(() => {
-                if (gameState.flyBall) {
-                    gameState.flyBall.caught = Math.random() < 0.7;
-                    if (!gameState.flyBall.caught) {
-                        // エラー→シングルヒット扱い
-                        gameState.flyBall.hitType = 'single';
-                    }
-                }
-            }, 1000);
         }
 
         // ゲーム終了
@@ -1048,10 +1261,23 @@
             if (gameState.phase === 'batting') {
                 playerSwing();
             }
+        }, { passive: false });
+
+        // タッチ終了時のデフォルト動作も防止
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        // コンテキストメニュー防止（長押し対策）
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
         });
 
         startBtn.addEventListener('click', startGame);
         restartBtn.addEventListener('click', startGame);
+
+        // 初期化
+        resizeCanvas();
 
         // ゲームループ開始
         gameLoop();
