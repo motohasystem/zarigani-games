@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ちいさいものくらべ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0a0e27;
+            --bg-mid: #151b3d;
+            --bg-card: rgba(30, 40, 80, 0.6);
+            --accent-cyan: #00e5ff;
+            --accent-magenta: #ff00aa;
+            --accent-yellow: #ffe600;
+            --accent-green: #00ff88;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --glow-cyan: 0 0 30px rgba(0, 229, 255, 0.4);
+            --glow-magenta: 0 0 30px rgba(255, 0, 170, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background: var(--bg-deep);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(0, 229, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255, 0, 170, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 50% 50%, rgba(0, 255, 136, 0.08) 0%, transparent 50%);
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.3; }
+            25% { transform: translateY(-30px) translateX(20px) scale(1.1); opacity: 0.6; }
+            50% { transform: translateY(-10px) translateX(-20px) scale(0.9); opacity: 0.4; }
+            75% { transform: translateY(-40px) translateX(10px) scale(1.05); opacity: 0.5; }
+        }
+
+        /* Grid pattern overlay */
+        .grid-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 30s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Main container */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta), var(--accent-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            filter: drop-shadow(0 0 30px rgba(0, 229, 255, 0.3));
+            letter-spacing: 0.05em;
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { filter: drop-shadow(0 0 30px rgba(0, 229, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 50px rgba(255, 0, 170, 0.4)); }
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 15px;
+            font-weight: 400;
+        }
+
+        /* Hiragana mode toggle */
+        .mode-toggle {
+            display: flex;
+            justify-content: center;
+            margin: 25px 0;
+        }
+
+        .toggle-btn {
+            background: var(--bg-card);
+            border: 2px solid rgba(0, 229, 255, 0.3);
+            border-radius: 50px;
+            padding: 12px 30px;
+            color: var(--text-primary);
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-btn:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(255, 0, 170, 0.2));
+            border-color: var(--accent-magenta);
+            box-shadow: var(--glow-magenta);
+        }
+
+        .toggle-icon {
+            font-size: 1.3rem;
+        }
+
+        /* Comparison section */
+        .comparison-section {
+            background: var(--bg-card);
+            border-radius: 30px;
+            padding: 40px 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .selectors {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .selectors {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        .selector-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .selector-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .dropdown {
+            appearance: none;
+            background: rgba(10, 14, 39, 0.8);
+            border: 2px solid rgba(0, 229, 255, 0.3);
+            border-radius: 15px;
+            padding: 15px 45px 15px 20px;
+            color: var(--text-primary);
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+        }
+
+        .dropdown:hover, .dropdown:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+            outline: none;
+        }
+
+        .dropdown option {
+            background: var(--bg-deep);
+            padding: 10px;
+        }
+
+        .vs-badge {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-magenta), var(--accent-cyan));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            box-shadow: 0 0 30px rgba(255, 0, 170, 0.4);
+            animation: vsPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes vsPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Visual comparison */
+        .visual-comparison {
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            padding: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .visual-comparison {
+                flex-direction: column;
+                gap: 40px;
+            }
+        }
+
+        .item-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .item-visual {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+        }
+
+        .item-circle {
+            border-radius: 50%;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            position: relative;
+        }
+
+        .item-circle::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .item-circle.left {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.3), rgba(0, 229, 255, 0.1));
+            border: 3px solid var(--accent-cyan);
+            box-shadow: var(--glow-cyan), inset 0 0 30px rgba(0, 229, 255, 0.1);
+        }
+
+        .item-circle.right {
+            background: linear-gradient(135deg, rgba(255, 0, 170, 0.3), rgba(255, 0, 170, 0.1));
+            border: 3px solid var(--accent-magenta);
+            box-shadow: var(--glow-magenta), inset 0 0 30px rgba(255, 0, 170, 0.1);
+        }
+
+        .item-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .item-name.left {
+            color: var(--accent-cyan);
+        }
+
+        .item-name.right {
+            color: var(--accent-magenta);
+        }
+
+        .item-size {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* Result section */
+        .result-section {
+            margin-top: 40px;
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .result-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            line-height: 1.8;
+        }
+
+        .highlight-cyan {
+            color: var(--accent-cyan);
+        }
+
+        .highlight-magenta {
+            color: var(--accent-magenta);
+        }
+
+        .highlight-yellow {
+            color: var(--accent-yellow);
+        }
+
+        .ratio-display {
+            margin-top: 20px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-yellow), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .ratio-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Scale bar */
+        .scale-bar {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
+        .scale-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .scale-track {
+            position: relative;
+            height: 40px;
+            background: linear-gradient(90deg,
+                var(--accent-cyan) 0%,
+                var(--accent-green) 25%,
+                var(--accent-yellow) 50%,
+                var(--accent-magenta) 100%);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .scale-marker {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            border: 3px solid var(--bg-deep);
+            transition: left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 2;
+        }
+
+        .scale-marker.marker-left {
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        .scale-marker.marker-right {
+            box-shadow: 0 0 10px var(--accent-magenta);
+        }
+
+        /* Fun facts */
+        .fun-fact {
+            margin-top: 30px;
+            padding: 20px 25px;
+            background: linear-gradient(135deg, rgba(255, 230, 0, 0.1), rgba(0, 255, 136, 0.1));
+            border-radius: 15px;
+            border-left: 4px solid var(--accent-yellow);
+        }
+
+        .fun-fact-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .fun-fact-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Animations for mode switch */
+        .hiragana-mode .kanji-text {
+            display: none;
+        }
+
+        .hiragana-mode .hiragana-text {
+            display: inline;
+        }
+
+        .normal-mode .kanji-text {
+            display: inline;
+        }
+
+        .normal-mode .hiragana-text {
+            display: none;
+        }
+
+        /* Microscope decoration */
+        .microscope-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 3rem;
+            opacity: 0.2;
+            animation: microscopeFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes microscopeFloat {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+    </style>
+</head>
+<body class="normal-mode">
+    <div class="bg-container">
+        <div class="bg-gradient"></div>
+        <div class="grid-overlay"></div>
+        <!-- Particles will be added by JS -->
+    </div>
+
+    <div class="main-container">
+        <header class="header">
+            <h1 class="title">
+                <span class="kanji-text">ちいさいものくらべ</span>
+                <span class="hiragana-text">ちいさいものくらべ</span>
+            </h1>
+            <p class="subtitle">
+                <span class="kanji-text">たまごから素粒子まで、ミクロの世界を冒険しよう！</span>
+                <span class="hiragana-text">たまごからいちばんちいさいものまで、ふしぎなせかいをたんけんしよう！</span>
+            </p>
+        </header>
+
+        <div class="mode-toggle">
+            <button class="toggle-btn" id="hiraganaToggle" onclick="toggleHiraganaMode()">
+                <span class="toggle-icon">あ</span>
+                <span class="kanji-text">ひらがなモード</span>
+                <span class="hiragana-text">ひらがなもーど</span>
+            </button>
+        </div>
+
+        <section class="comparison-section">
+            <div class="selectors">
+                <div class="selector-group">
+                    <label class="selector-label">
+                        <span class="kanji-text">ひとつめ</span>
+                        <span class="hiragana-text">ひとつめ</span>
+                    </label>
+                    <select class="dropdown" id="item1" onchange="updateComparison()">
+                    </select>
+                </div>
+
+                <div class="vs-badge">VS</div>
+
+                <div class="selector-group">
+                    <label class="selector-label">
+                        <span class="kanji-text">ふたつめ</span>
+                        <span class="hiragana-text">ふたつめ</span>
+                    </label>
+                    <select class="dropdown" id="item2" onchange="updateComparison()">
+                    </select>
+                </div>
+            </div>
+
+            <div class="visual-comparison">
+                <div class="item-display">
+                    <div class="item-visual">
+                        <div class="item-circle left" id="circle1"></div>
+                    </div>
+                    <div class="item-name left" id="name1"></div>
+                    <div class="item-size" id="size1"></div>
+                </div>
+
+                <div class="item-display">
+                    <div class="item-visual">
+                        <div class="item-circle right" id="circle2"></div>
+                    </div>
+                    <div class="item-name right" id="name2"></div>
+                    <div class="item-size" id="size2"></div>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-text" id="resultText"></div>
+                <div class="ratio-display" id="ratioDisplay"></div>
+                <div class="ratio-label" id="ratioLabel"></div>
+            </div>
+
+            <div class="scale-bar">
+                <div class="scale-title">
+                    <span class="kanji-text">大きさスケール</span>
+                    <span class="hiragana-text">おおきさすけーる</span>
+                </div>
+                <div class="scale-track">
+                    <div class="scale-marker marker-left" id="marker1"></div>
+                    <div class="scale-marker marker-right" id="marker2"></div>
+                </div>
+                <div class="scale-labels">
+                    <span>10⁻³⁵m</span>
+                    <span>10⁻²⁴m</span>
+                    <span>10⁻¹²m</span>
+                    <span>10⁻¹m</span>
+                </div>
+            </div>
+
+            <div class="fun-fact" id="funFact">
+                <span class="fun-fact-icon">💡</span>
+                <span class="fun-fact-text" id="funFactText"></span>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <span class="kanji-text">科学の世界はふしぎがいっぱい！</span>
+            <span class="hiragana-text">かがくのせかいは ふしぎが いっぱい！</span>
+        </footer>
+    </div>
+
+    <div class="microscope-icon">🔬</div>
+
+    <script>
+        // Item data with sizes in meters
+        const items = [
+            {
+                id: 'egg',
+                name: '鶏の卵',
+                hiragana: 'にわとりのたまご',
+                size: 0.06,
+                emoji: '🥚',
+                sizeText: '約6cm',
+                sizeTextHiragana: 'やく6せんち',
+                fact: '鶏の卵は、ひよこが育つための栄養がぎっしり詰まっています。',
+                factHiragana: 'にわとりのたまごは、ひよこがそだつためのえいようが いっぱいはいっているよ。'
+            },
+            {
+                id: 'beetle',
+                name: 'カブトムシ',
+                hiragana: 'かぶとむし',
+                size: 0.05,
+                emoji: '🪲',
+                sizeText: '約5cm',
+                sizeTextHiragana: 'やく5せんち',
+                fact: 'カブトムシは自分の体重の20倍以上の重さを持ち上げられます！',
+                factHiragana: 'かぶとむしは、じぶんのからだの20ばいよりおもいものを もちあげられるよ！'
+            },
+            {
+                id: 'bee',
+                name: 'ハチ',
+                hiragana: 'はち',
+                size: 0.013,
+                emoji: '🐝',
+                sizeText: '約1.3cm',
+                sizeTextHiragana: 'やく1.3せんち',
+                fact: 'ミツバチは花の蜜を集めてハチミツを作ります。1匹が一生で作れるハチミツはスプーン1杯分だけ！',
+                factHiragana: 'みつばちは はなのみつを あつめて はちみつを つくるよ。1ぴきが いっしょうで つくれるのは すぷーん1ぱいぶんだけ！'
+            },
+            {
+                id: 'stinkbug',
+                name: 'カメムシ',
+                hiragana: 'かめむし',
+                size: 0.012,
+                emoji: '🛡️',
+                sizeText: '約1.2cm',
+                sizeTextHiragana: 'やく1.2せんち',
+                fact: 'カメムシは敵に襲われると臭いにおいを出して身を守ります。だから「ヘクサムシ」とも呼ばれます。',
+                factHiragana: 'かめむしは てきにおそわれると くさいにおいをだして みをまもるよ。だから「へっぴりむし」ともよばれるよ。'
+            },
+            {
+                id: 'ladybug',
+                name: 'テントウムシ',
+                hiragana: 'てんとうむし',
+                size: 0.007,
+                emoji: '🐞',
+                sizeText: '約7mm',
+                sizeTextHiragana: 'やく7みり',
+                fact: 'テントウムシは1日に100匹以上のアブラムシを食べることができます。農家の味方です！',
+                factHiragana: 'てんとうむしは 1にちに 100ぴきいじょうの あぶらむしを たべられるよ。のうかのみかた！'
+            },
+            {
+                id: 'ant',
+                name: 'アリ',
+                hiragana: 'あり',
+                size: 0.003,
+                emoji: '🐜',
+                sizeText: '約3mm',
+                sizeTextHiragana: 'やく3みり',
+                fact: 'アリは地球上に1京匹（10,000,000,000,000,000匹）以上いると言われています。',
+                factHiragana: 'ありは ちきゅうに すっごくたくさんいるよ。かぞえきれないくらい！'
+            },
+            {
+                id: 'aphid',
+                name: 'アブラムシ',
+                hiragana: 'あぶらむし',
+                size: 0.002,
+                emoji: '🦟',
+                sizeText: '約2mm',
+                sizeTextHiragana: 'やく2みり',
+                fact: 'アブラムシは植物の汁を吸って生きています。テントウムシの大好物です！',
+                factHiragana: 'あぶらむしは しょくぶつの しるをすってるよ。てんとうむしの だいこうぶつ！'
+            },
+            {
+                id: 'tardigrade',
+                name: 'クマムシ',
+                hiragana: 'くまむし',
+                size: 0.0005,
+                emoji: '🐻',
+                sizeText: '約0.5mm',
+                sizeTextHiragana: 'やく0.5みり',
+                fact: 'クマムシは宇宙空間でも生きられる地球最強の生き物です！',
+                factHiragana: 'くまむしは うちゅうでもいきられる ちきゅうでいちばんつよいいきものだよ！'
+            },
+            {
+                id: 'hair',
+                name: '髪の毛',
+                hiragana: 'かみのけ',
+                size: 0.00008,
+                emoji: '💇',
+                sizeText: '約80μm（0.08mm）',
+                sizeTextHiragana: 'やく0.08みり',
+                fact: '人間の髪の毛は1日に約0.3〜0.4mm伸びます。',
+                factHiragana: 'にんげんの かみのけは まいにちすこしずつ のびているよ。'
+            },
+            {
+                id: 'cell',
+                name: '人間の細胞',
+                hiragana: 'にんげんのさいぼう',
+                size: 0.00002,
+                emoji: '🧫',
+                sizeText: '約20μm',
+                sizeTextHiragana: 'やく0.02みり',
+                fact: '人間の体は約37兆個の細胞でできています。',
+                factHiragana: 'にんげんのからだは ものすごくたくさんの さいぼうで できているよ。'
+            },
+            {
+                id: 'whiteblood',
+                name: '白血球',
+                hiragana: 'はっけっきゅう',
+                size: 0.000012,
+                emoji: '⚪',
+                sizeText: '約12μm',
+                sizeTextHiragana: 'やく0.012みり',
+                fact: '白血球は体に入ってきたバイキンをやっつける、体の中のヒーローです！',
+                factHiragana: 'はっけっきゅうは ばいきんをやっつける からだのなかの ひーろーだよ！'
+            },
+            {
+                id: 'redblood',
+                name: '赤血球',
+                hiragana: 'せっけっきゅう',
+                size: 0.0000075,
+                emoji: '🔴',
+                sizeText: '約7.5μm',
+                sizeTextHiragana: 'やく0.0075みり',
+                fact: '赤血球は酸素を体中に届ける配達員のような細胞です。',
+                factHiragana: 'せっけっきゅうは さんそを からだじゅうにはこぶ はいたついんさんだよ。'
+            },
+            {
+                id: 'nucleus',
+                name: '細胞核',
+                hiragana: 'さいぼうかく',
+                size: 0.000006,
+                emoji: '🟣',
+                sizeText: '約6μm',
+                sizeTextHiragana: 'やく0.006みり',
+                fact: '細胞核には遺伝子（DNA）が入っていて、体の設計図が書かれています。',
+                factHiragana: 'さいぼうかくには からだのせっけいずが はいっているよ。'
+            },
+            {
+                id: 'mitochondria',
+                name: 'ミトコンドリア',
+                hiragana: 'みとこんどりあ',
+                size: 0.0000015,
+                emoji: '⚡',
+                sizeText: '約1.5μm',
+                sizeTextHiragana: 'やく0.0015みり',
+                fact: 'ミトコンドリアは細胞の中のエネルギー工場。元気のもとを作っています！',
+                factHiragana: 'みとこんどりあは さいぼうのなかの えねるぎーこうじょうだよ。げんきのもとを つくってるよ！'
+            },
+            {
+                id: 'dna',
+                name: 'DNA',
+                hiragana: 'でぃーえぬえー',
+                size: 0.000000002,
+                emoji: '🧬',
+                sizeText: '約2nm（幅）',
+                sizeTextHiragana: 'やく0.000002みり',
+                fact: '人間のDNAを全部つなげると、太陽まで何往復もできる長さになります！',
+                factHiragana: 'にんげんの DNAを ぜんぶつなげると たいようまで なんかいも いったりきたりできるよ！'
+            },
+            {
+                id: 'oxygen',
+                name: '酸素分子',
+                hiragana: 'さんそぶんし',
+                size: 0.0000000003,
+                emoji: '💨',
+                sizeText: '約0.3nm',
+                sizeTextHiragana: 'やく0.0000003みり',
+                fact: '私たちが呼吸で吸い込む酸素。目には見えないけど、生きるのに絶対必要！',
+                factHiragana: 'いきをすうときに はいる さんそ。めにみえないけど いきるのに ぜったいひつよう！'
+            },
+            {
+                id: 'co2',
+                name: '二酸化炭素分子',
+                hiragana: 'にさんかたんそぶんし',
+                size: 0.00000000033,
+                emoji: '💭',
+                sizeText: '約0.33nm',
+                sizeTextHiragana: 'やく0.00000033みり',
+                fact: '息を吐くときに出る二酸化炭素。植物はこれを使って酸素を作ってくれます。',
+                factHiragana: 'いきを はくときにでる もの。しょくぶつは これをつかって さんそを つくってくれるよ。'
+            },
+            {
+                id: 'water',
+                name: '水分子',
+                hiragana: 'みずぶんし',
+                size: 0.000000000275,
+                emoji: '💧',
+                sizeText: '約0.275nm',
+                sizeTextHiragana: 'やく0.000000275みり',
+                fact: '水は私たちの体の60%以上を占めています。水がないと生きられません！',
+                factHiragana: 'みずは からだの ほとんどを しめているよ。みずがないと いきられないね！'
+            },
+            {
+                id: 'hydrogen',
+                name: '水素原子',
+                hiragana: 'すいそげんし',
+                size: 0.00000000012,
+                emoji: '⚛️',
+                sizeText: '約0.12nm',
+                sizeTextHiragana: 'やく0.00000012みり',
+                fact: '水素は宇宙で一番たくさんある元素。星の材料でもあります。',
+                factHiragana: 'すいそは うちゅうで いちばんおおい げんそだよ。ほしのざいりょうでもあるよ。'
+            },
+            {
+                id: 'carbon',
+                name: '炭素原子',
+                hiragana: 'たんそげんし',
+                size: 0.00000000017,
+                emoji: '⬛',
+                sizeText: '約0.17nm',
+                sizeTextHiragana: 'やく0.00000017みり',
+                fact: '炭素は生き物の体を作る基本の材料。ダイヤモンドも炭素でできています！',
+                factHiragana: 'たんそは いきものの からだをつくる きほんのざいりょう。だいやもんども たんそでできてるよ！'
+            },
+            {
+                id: 'proton',
+                name: '陽子',
+                hiragana: 'ようし',
+                size: 0.0000000000000008,
+                emoji: '➕',
+                sizeText: '約0.8fm',
+                sizeTextHiragana: 'やく0.0000000000008みり',
+                fact: '陽子は原子の中心（原子核）にある粒子。プラスの電気を持っています。',
+                factHiragana: 'ようしは げんしのまんなかにある つぶつぶ。ぷらすのでんきを もっているよ。'
+            },
+            {
+                id: 'neutron',
+                name: '中性子',
+                hiragana: 'ちゅうせいし',
+                size: 0.0000000000000008,
+                emoji: '⚪',
+                sizeText: '約0.8fm',
+                sizeTextHiragana: 'やく0.0000000000008みり',
+                fact: '中性子は陽子と一緒に原子核を作っている粒子。電気を持っていません。',
+                factHiragana: 'ちゅうせいしは ようしといっしょに げんしかくをつくっている つぶつぶだよ。'
+            },
+            {
+                id: 'electron',
+                name: '電子',
+                hiragana: 'でんし',
+                size: 0.000000000000000001,
+                emoji: '➖',
+                sizeText: '< 10⁻¹⁸m',
+                sizeTextHiragana: 'ものすごくちいさい',
+                fact: '電子は原子の周りを飛び回っている、とても小さな粒子です。',
+                factHiragana: 'でんしは げんしのまわりを とびまわっている とってもちいさい つぶつぶだよ。'
+            },
+            {
+                id: 'quark',
+                name: 'クォーク',
+                hiragana: 'くぉーく',
+                size: 0.0000000000000000001,
+                emoji: '✨',
+                sizeText: '< 10⁻¹⁹m',
+                sizeTextHiragana: 'とってもとってもちいさい',
+                fact: 'クォークは陽子や中性子を作っている、もっと小さな粒子です。',
+                factHiragana: 'くぉーくは ようしや ちゅうせいしを つくっている もっとちいさい つぶつぶだよ。'
+            },
+            {
+                id: 'bigbang',
+                name: 'ビッグバン前の宇宙',
+                hiragana: 'びっぐばんまえのうちゅう',
+                size: 0.000000000000000000000000000000000016,
+                emoji: '🌌',
+                sizeText: '約10⁻³⁵m（プランク長）',
+                sizeTextHiragana: 'そうぞうできないくらい ちいさい',
+                fact: 'ビッグバン前の宇宙は「プランク長」という、物理学で意味のある最小の長さまで縮んでいたと考えられています。',
+                factHiragana: 'びっぐばんの まえは、うちゅうぜんたいが このせかいで いちばんちいさいものより ちいさかったんだよ！ふしぎだね！'
+            }
+        ];
+
+        let isHiraganaMode = false;
+
+        // Initialize
+        function init() {
+            createParticles();
+            populateDropdowns();
+            updateComparison();
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const container = document.querySelector('.bg-container');
+            const colors = ['rgba(0, 229, 255, 0.3)', 'rgba(255, 0, 170, 0.3)', 'rgba(0, 255, 136, 0.3)', 'rgba(255, 230, 0, 0.3)'];
+
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    width: ${Math.random() * 10 + 5}px;
+                    height: ${Math.random() * 10 + 5}px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    animation-delay: ${Math.random() * 20}s;
+                    animation-duration: ${15 + Math.random() * 10}s;
+                `;
+                container.appendChild(particle);
+            }
+        }
+
+        // Populate dropdowns
+        function populateDropdowns() {
+            const dropdown1 = document.getElementById('item1');
+            const dropdown2 = document.getElementById('item2');
+
+            items.forEach((item, index) => {
+                const option1 = document.createElement('option');
+                option1.value = item.id;
+                option1.textContent = `${item.emoji} ${isHiraganaMode ? item.hiragana : item.name}`;
+                option1.dataset.hiragana = item.hiragana;
+                option1.dataset.name = item.name;
+                dropdown1.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = item.id;
+                option2.textContent = `${item.emoji} ${isHiraganaMode ? item.hiragana : item.name}`;
+                option2.dataset.hiragana = item.hiragana;
+                option2.dataset.name = item.name;
+                dropdown2.appendChild(option2);
+            });
+
+            // Set default selections
+            dropdown1.value = 'egg';
+            dropdown2.value = 'ant';
+        }
+
+        // Toggle hiragana mode
+        function toggleHiraganaMode() {
+            isHiraganaMode = !isHiraganaMode;
+            document.body.classList.toggle('hiragana-mode', isHiraganaMode);
+            document.body.classList.toggle('normal-mode', !isHiraganaMode);
+            document.getElementById('hiraganaToggle').classList.toggle('active', isHiraganaMode);
+
+            // Update dropdown options
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                Array.from(dropdown.options).forEach(option => {
+                    const item = items.find(i => i.id === option.value);
+                    if (item) {
+                        option.textContent = `${item.emoji} ${isHiraganaMode ? item.hiragana : item.name}`;
+                    }
+                });
+            });
+
+            updateComparison();
+        }
+
+        // Update comparison
+        function updateComparison() {
+            const item1Id = document.getElementById('item1').value;
+            const item2Id = document.getElementById('item2').value;
+
+            const item1 = items.find(i => i.id === item1Id);
+            const item2 = items.find(i => i.id === item2Id);
+
+            if (!item1 || !item2) return;
+
+            // Update names
+            document.getElementById('name1').textContent = `${item1.emoji} ${isHiraganaMode ? item1.hiragana : item1.name}`;
+            document.getElementById('name2').textContent = `${item2.emoji} ${isHiraganaMode ? item2.hiragana : item2.name}`;
+
+            // Update sizes
+            document.getElementById('size1').textContent = isHiraganaMode ? item1.sizeTextHiragana : item1.sizeText;
+            document.getElementById('size2').textContent = isHiraganaMode ? item2.sizeTextHiragana : item2.sizeText;
+
+            // Calculate ratio
+            const ratio = item1.size / item2.size;
+            const logRatio = Math.log10(ratio);
+
+            // Update visual circles (size based on log scale, capped)
+            const baseSize = 60;
+            const maxSize = 150;
+            const minSize = 20;
+
+            let size1, size2;
+            if (ratio > 1) {
+                size1 = maxSize;
+                size2 = Math.max(minSize, maxSize / Math.pow(ratio, 0.15));
+            } else {
+                size2 = maxSize;
+                size1 = Math.max(minSize, maxSize * Math.pow(ratio, 0.15));
+            }
+
+            const circle1 = document.getElementById('circle1');
+            const circle2 = document.getElementById('circle2');
+
+            circle1.style.width = `${size1}px`;
+            circle1.style.height = `${size1}px`;
+            circle1.textContent = item1.emoji;
+            circle1.style.fontSize = `${size1 * 0.4}px`;
+
+            circle2.style.width = `${size2}px`;
+            circle2.style.height = `${size2}px`;
+            circle2.textContent = item2.emoji;
+            circle2.style.fontSize = `${size2 * 0.4}px`;
+
+            // Update result text
+            const resultText = document.getElementById('resultText');
+            const ratioDisplay = document.getElementById('ratioDisplay');
+            const ratioLabel = document.getElementById('ratioLabel');
+
+            const name1 = isHiraganaMode ? item1.hiragana : item1.name;
+            const name2 = isHiraganaMode ? item2.hiragana : item2.name;
+
+            if (ratio > 1) {
+                const displayRatio = formatRatio(ratio);
+                if (isHiraganaMode) {
+                    resultText.innerHTML = `<span class="highlight-cyan">${name1}</span>は<br><span class="highlight-magenta">${name2}</span>の`;
+                    ratioLabel.textContent = 'ばい おおきいよ！';
+                } else {
+                    resultText.innerHTML = `<span class="highlight-cyan">${name1}</span>は<br><span class="highlight-magenta">${name2}</span>の`;
+                    ratioLabel.textContent = '倍 大きい！';
+                }
+                ratioDisplay.textContent = displayRatio;
+            } else if (ratio < 1) {
+                const displayRatio = formatRatio(1 / ratio);
+                if (isHiraganaMode) {
+                    resultText.innerHTML = `<span class="highlight-cyan">${name1}</span>は<br><span class="highlight-magenta">${name2}</span>の`;
+                    ratioLabel.textContent = 'ぶんの1 ちいさいよ！';
+                } else {
+                    resultText.innerHTML = `<span class="highlight-cyan">${name1}</span>は<br><span class="highlight-magenta">${name2}</span>の`;
+                    ratioLabel.textContent = '分の1 小さい！';
+                }
+                ratioDisplay.textContent = displayRatio;
+            } else {
+                if (isHiraganaMode) {
+                    resultText.innerHTML = `<span class="highlight-cyan">${name1}</span>と<br><span class="highlight-magenta">${name2}</span>は`;
+                    ratioLabel.textContent = '';
+                } else {
+                    resultText.innerHTML = `<span class="highlight-cyan">${name1}</span>と<br><span class="highlight-magenta">${name2}</span>は`;
+                    ratioLabel.textContent = '';
+                }
+                ratioDisplay.textContent = isHiraganaMode ? 'おなじおおきさ！' : '同じ大きさ！';
+            }
+
+            // Update scale markers
+            const minLog = -35;
+            const maxLog = -1;
+            const range = maxLog - minLog;
+
+            const log1 = Math.log10(item1.size);
+            const log2 = Math.log10(item2.size);
+
+            const pos1 = ((log1 - minLog) / range) * 100;
+            const pos2 = ((log2 - minLog) / range) * 100;
+
+            document.getElementById('marker1').style.left = `${Math.max(2, Math.min(98, pos1))}%`;
+            document.getElementById('marker2').style.left = `${Math.max(2, Math.min(98, pos2))}%`;
+
+            // Update fun fact
+            const funFactText = document.getElementById('funFactText');
+            const randomItem = Math.random() > 0.5 ? item1 : item2;
+            funFactText.textContent = isHiraganaMode ? randomItem.factHiragana : randomItem.fact;
+        }
+
+        // Format ratio for display
+        function formatRatio(ratio) {
+            if (ratio >= 1000000000) {
+                return (ratio / 1000000000).toFixed(0) + '0億';
+            } else if (ratio >= 100000000) {
+                return (ratio / 100000000).toFixed(0) + '億';
+            } else if (ratio >= 10000000) {
+                return (ratio / 10000000).toFixed(0) + '000万';
+            } else if (ratio >= 1000000) {
+                return (ratio / 1000000).toFixed(0) + '00万';
+            } else if (ratio >= 100000) {
+                return (ratio / 100000).toFixed(0) + '0万';
+            } else if (ratio >= 10000) {
+                return (ratio / 10000).toFixed(1) + '万';
+            } else if (ratio >= 1000) {
+                return ratio.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            } else if (ratio >= 100) {
+                return ratio.toFixed(0);
+            } else if (ratio >= 10) {
+                return ratio.toFixed(1);
+            } else {
+                return ratio.toFixed(2);
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
