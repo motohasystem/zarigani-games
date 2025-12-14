@@ -126,6 +126,15 @@ const celestialBodies = {
         type: '赤色巨星',
         hiraganaType: 'せきしょくきょせい',
         imageUrl: null
+    },
+    stephenson218: {
+        name: 'スティーブンソン2-18',
+        hiraganaName: 'すてぃーぶんそん2-18',
+        diameter: 2994305000,  // 約2150太陽半径
+        color: '#ff2200',
+        type: '赤色超巨星',
+        hiraganaType: 'せきしょくちょうきょせい',
+        imageUrl: null
     }
 };
 
@@ -133,7 +142,7 @@ const celestialBodies = {
 const celestialOrder = [
     'moon', 'mercury', 'mars', 'venus', 'earth',
     'neptune', 'uranus', 'saturn', 'jupiter', 'sun',
-    'betelgeuse', 'antares', 'rigel', 'aldebaran'
+    'betelgeuse', 'antares', 'rigel', 'aldebaran', 'stephenson218'
 ];
 
 // アプリケーション状態
