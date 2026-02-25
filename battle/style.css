@@ -94,6 +94,15 @@ button:active {
     transform: translateY(0);
 }
 
+#submitScoreButton {
+    background: linear-gradient(45deg, #ff6b35, #ff8555);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+}
+
+#submitScoreButton:hover {
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+}
+
 #highScore {
     margin-top: 20px;
     font-size: 16px;

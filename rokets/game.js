@@ -1,3 +1,9 @@
+const HUB_URL = "https://aaa-gasen-hub.ddssk-m.workers.dev";
+function submitToHub(score) {
+    const gameUrl = window.location.origin + window.location.pathname;
+    window.location.href = `${HUB_URL}/submit?url=${encodeURIComponent(gameUrl)}&score=${score}`;
+}
+
 // ゲーム状態管理
 const GameState = {
     TITLE: 'title',
@@ -53,6 +59,7 @@ const screens = {
 const ui = {
     startButton: null,
     retryButton: null,
+    submitScoreButton: null,
     scoreDisplay: null,
     timerDisplay: null,
     highScoreValue: null,
@@ -81,6 +88,7 @@ function initializeDOM() {
     
     ui.startButton = document.getElementById('startButton');
     ui.retryButton = document.getElementById('retryButton');
+    ui.submitScoreButton = document.getElementById('submitScoreButton');
     ui.scoreDisplay = document.getElementById('score');
     ui.timerDisplay = document.getElementById('timer');
     ui.highScoreValue = document.getElementById('highScoreValue');
@@ -114,6 +122,9 @@ function setupEventListeners() {
     });
     ui.retryButton.addEventListener('click', () => {
         showScreen(GameState.TITLE);
+    });
+    ui.submitScoreButton.addEventListener('click', () => {
+        submitToHub(score);
     });
     
     // マウスイベント

@@ -1,3 +1,9 @@
+const HUB_URL = "https://aaa-gasen-hub.ddssk-m.workers.dev";
+function submitToHub(score) {
+    const gameUrl = window.location.origin + window.location.pathname;
+    window.location.href = `${HUB_URL}/submit?url=${encodeURIComponent(gameUrl)}&score=${score}`;
+}
+
 class ZariganiGame {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -152,9 +158,21 @@ class ZariganiGame {
         // 全ての餌を削除
         this.baitList = [];
         
-        alert(`ゲーム終了！最終スコア: ${this.score}ポイント獲得`);
+        // ゲームオーバーオーバーレイを表示
+        const overlay = document.getElementById('gameOverOverlay');
+        document.getElementById('finalScore').textContent = this.score;
+        overlay.style.display = 'flex';
+
+        document.getElementById('submitScoreButton').onclick = () => {
+            submitToHub(this.score);
+        };
+        document.getElementById('retryButton').onclick = () => {
+            overlay.style.display = 'none';
+            this.resetGame();
+            this.startGame();
+        };
     }
-    
+
     resetGame() {
         this.gameState = 'menu';
         this.score = 0;

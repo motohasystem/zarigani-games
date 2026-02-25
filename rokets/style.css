@@ -110,6 +110,17 @@ body {
     box-shadow: 0 8px 20px rgba(255, 107, 53, 0.6);
 }
 
+.submitBtn {
+    background: #4169E1;
+    box-shadow: 0 5px 15px rgba(65, 105, 225, 0.4);
+    margin-bottom: 1rem;
+}
+
+.submitBtn:hover {
+    background: #5a7ff0;
+    box-shadow: 0 8px 20px rgba(65, 105, 225, 0.6);
+}
+
 .highScore {
     margin-top: 2rem;
     font-size: 1.5rem;

@@ -1,3 +1,9 @@
+const HUB_URL = "https://aaa-gasen-hub.ddssk-m.workers.dev";
+function submitToHub(score) {
+    const gameUrl = window.location.origin + window.location.pathname;
+    window.location.href = `${HUB_URL}/submit?url=${encodeURIComponent(gameUrl)}&score=${score}`;
+}
+
 class ZariganiGrowthGame {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -108,7 +114,11 @@ class ZariganiGrowthGame {
         document.getElementById('restartButton').addEventListener('click', () => {
             this.startGame();
         });
-        
+
+        document.getElementById('submitScoreButton').addEventListener('click', () => {
+            submitToHub(this.score);
+        });
+
         document.getElementById('backToMenuButton').addEventListener('click', () => {
             this.showMenu();
         });
