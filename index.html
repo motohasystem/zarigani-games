@@ -137,13 +137,199 @@
                 }
             }
 
+            /* Arcade cabinet frame */
+            .cabinet {
+                max-width: 1240px;
+                margin: 30px auto;
+                padding: 0;
+                position: relative;
+                z-index: 1;
+                background: linear-gradient(180deg, #1a1030 0%, #0c0820 100%);
+                border: 4px solid #2a1a4a;
+                border-radius: 30px;
+                box-shadow:
+                    0 0 0 2px rgba(0, 245, 212, 0.25),
+                    0 0 60px rgba(0, 245, 212, 0.15),
+                    0 0 120px rgba(255, 107, 157, 0.1),
+                    inset 0 0 60px rgba(0, 0, 0, 0.6);
+            }
+
+            .cabinet-marquee {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 18px;
+                padding: 14px 30px;
+                background: linear-gradient(180deg, #0d1929 0%, #1a2540 100%);
+                border-bottom: 2px solid var(--accent-cyan);
+                border-radius: 26px 26px 0 0;
+                box-shadow:
+                    inset 0 -8px 20px rgba(0, 245, 212, 0.18),
+                    inset 0 4px 12px rgba(255, 107, 157, 0.1);
+                overflow: hidden;
+            }
+
+            .cabinet-marquee::before,
+            .cabinet-marquee::after {
+                content: "";
+                flex: 0 0 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: var(--accent-pink);
+                box-shadow: 0 0 10px var(--accent-pink), 0 0 20px var(--accent-pink);
+                animation: marquee-blink 1.4s ease-in-out infinite;
+            }
+
+            .cabinet-marquee::after {
+                background: var(--accent-yellow);
+                box-shadow: 0 0 10px var(--accent-yellow), 0 0 20px var(--accent-yellow);
+                animation-delay: 0.7s;
+            }
+
+            @keyframes marquee-blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
+            }
+
+            .marquee-text {
+                font-family: "Dela Gothic One", sans-serif;
+                font-size: clamp(0.9rem, 2.4vw, 1.4rem);
+                letter-spacing: 0.3em;
+                background: linear-gradient(90deg, var(--accent-cyan), var(--accent-yellow), var(--accent-pink));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                filter: drop-shadow(0 0 8px rgba(0, 245, 212, 0.6));
+            }
+
+            /* CRT screen area */
+            .cabinet-screen {
+                position: relative;
+                padding: 40px 30px;
+                background:
+                    radial-gradient(ellipse at center, rgba(13, 25, 41, 0.6) 0%, rgba(10, 14, 26, 0.85) 100%);
+                overflow: hidden;
+            }
+
+            .cabinet-screen::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background-image: repeating-linear-gradient(
+                    0deg,
+                    transparent 0px,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.18) 2px,
+                    rgba(0, 0, 0, 0.18) 3px
+                );
+                pointer-events: none;
+                z-index: 2;
+                mix-blend-mode: multiply;
+            }
+
+            .cabinet-screen::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.45) 100%);
+                pointer-events: none;
+                z-index: 2;
+            }
+
+            /* Cabinet control panel */
+            .cabinet-controls {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 20px;
+                padding: 18px 30px 22px;
+                background: linear-gradient(180deg, #1a2540 0%, #0d1929 100%);
+                border-top: 2px solid rgba(0, 245, 212, 0.4);
+                border-radius: 0 0 26px 26px;
+                flex-wrap: wrap;
+            }
+
+            .joystick {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: radial-gradient(circle at 35% 35%, #ff8fb5, var(--accent-pink) 60%, #b03a6c);
+                box-shadow:
+                    0 4px 0 #4a1530,
+                    0 0 12px rgba(255, 107, 157, 0.5),
+                    inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+                position: relative;
+            }
+
+            .joystick::before {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: 100%;
+                transform: translateX(-50%);
+                width: 8px;
+                height: 14px;
+                background: #2a1a4a;
+                border-radius: 0 0 4px 4px;
+            }
+
+            .arcade-btn {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                box-shadow:
+                    0 4px 0 rgba(0, 0, 0, 0.5),
+                    inset 0 -4px 6px rgba(0, 0, 0, 0.3),
+                    inset 0 3px 5px rgba(255, 255, 255, 0.4);
+            }
+
+            .arcade-btn.red {
+                background: radial-gradient(circle at 35% 35%, #ff7b7b, #e23636);
+            }
+            .arcade-btn.yellow {
+                background: radial-gradient(circle at 35% 35%, #ffe680, var(--accent-yellow));
+            }
+            .arcade-btn.green {
+                background: radial-gradient(circle at 35% 35%, #7af5b8, #2dc878);
+            }
+            .arcade-btn.blue {
+                background: radial-gradient(circle at 35% 35%, #82e6f5, #2bb1c9);
+            }
+
+            .coin-slot {
+                font-family: "Dela Gothic One", sans-serif;
+                font-size: 0.7rem;
+                letter-spacing: 0.2em;
+                color: var(--accent-yellow);
+                padding: 8px 14px;
+                background: #0a0e1a;
+                border: 2px solid #3a2a1a;
+                border-radius: 4px;
+                box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8);
+                position: relative;
+            }
+
+            .coin-slot::before {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: -5px;
+                transform: translateX(-50%);
+                width: 22px;
+                height: 4px;
+                background: #000;
+                border-radius: 2px;
+                box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.1);
+            }
+
             /* Main content */
             .container {
                 max-width: 1200px;
                 margin: 0 auto;
-                padding: 40px 20px 60px;
+                padding: 0;
                 position: relative;
-                z-index: 1;
+                z-index: 3;
             }
 
             /* Header */
@@ -491,8 +677,45 @@
 
             /* Responsive */
             @media (max-width: 600px) {
+                .cabinet {
+                    margin: 12px 8px;
+                    border-width: 3px;
+                    border-radius: 20px;
+                }
+
+                .cabinet-marquee {
+                    padding: 10px 16px;
+                    border-radius: 16px 16px 0 0;
+                    gap: 10px;
+                }
+
+                .cabinet-screen {
+                    padding: 25px 12px;
+                }
+
+                .cabinet-controls {
+                    gap: 12px;
+                    padding: 12px 16px 16px;
+                    border-radius: 0 0 16px 16px;
+                }
+
+                .joystick {
+                    width: 28px;
+                    height: 28px;
+                }
+
+                .arcade-btn {
+                    width: 24px;
+                    height: 24px;
+                }
+
+                .coin-slot {
+                    font-size: 0.6rem;
+                    padding: 6px 10px;
+                }
+
                 .container {
-                    padding: 30px 15px 40px;
+                    padding: 0;
                 }
 
                 header {
@@ -531,25 +754,42 @@
             </div>
         </div>
 
-        <div class="container">
-            <header>
-                <div class="logo">
-                    <span class="logo-icon">🦞</span>
-                    <h1>ザリガニゲームス</h1>
+        <div class="cabinet">
+            <div class="cabinet-marquee">
+                <span class="marquee-text">ZARIGANI ARCADE</span>
+            </div>
+
+            <div class="cabinet-screen">
+                <div class="container">
+                    <header>
+                        <div class="logo">
+                            <span class="logo-icon">🦞</span>
+                            <h1>ザリガニゲームス</h1>
+                        </div>
+                        <p class="subtitle">made with <span>CoderDojo神山</span></p>
+                    </header>
+
+                    <div id="gameList" class="loading">ゲームを読み込み中</div>
+
+                    <footer>
+                        <a href="https://coderdojo.kamiyama.club/" target="_blank" rel="noopener" class="footer-logo primary">
+                            <span>CoderDojo神山</span>
+                        </a>
+                        <a href="https://coderdojo.jp/" target="_blank" rel="noopener" class="footer-logo">
+                            <span>Powered by CoderDojo Japan</span>
+                        </a>
+                    </footer>
                 </div>
-                <p class="subtitle">made with <span>CoderDojo神山</span></p>
-            </header>
+            </div>
 
-            <div id="gameList" class="loading">ゲームを読み込み中</div>
-
-            <footer>
-                <a href="https://coderdojo.kamiyama.club/" target="_blank" rel="noopener" class="footer-logo primary">
-                    <span>CoderDojo神山</span>
-                </a>
-                <a href="https://coderdojo.jp/" target="_blank" rel="noopener" class="footer-logo">
-                    <span>Powered by CoderDojo Japan</span>
-                </a>
-            </footer>
+            <div class="cabinet-controls">
+                <div class="joystick"></div>
+                <div class="arcade-btn red"></div>
+                <div class="arcade-btn yellow"></div>
+                <div class="arcade-btn green"></div>
+                <div class="arcade-btn blue"></div>
+                <div class="coin-slot">INSERT COIN</div>
+            </div>
         </div>
 
         <script>

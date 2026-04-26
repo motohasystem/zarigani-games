@@ -16,6 +16,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `surume.png` - スルメの画像
   - `surume_whole.png` - 完全なスルメの画像
 
+## 共通の戻りバー（必須）
+新規ゲームの `index.html` には、`</body>` 直前に以下のスクリプトタグを必ず入れること。ルート直下の `back-bar.js` が画面上端に「← ザリガニゲームスに戻る」バーを動的に挿入する。
+
+```html
+<script src="../back-bar.js"></script>
+```
+
 ## 開発環境
 - 静的ファイルのため、ローカルサーバーで動作確認
 - `python -m http.server 8000` または Live Server拡張機能を使用
