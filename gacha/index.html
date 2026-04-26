@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ガチャガチャ！</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Fredoka:wght@500;600;700&family=Yusei+Magic&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 背景の装飾 -->
+  <div class="bg-decor" aria-hidden="true">
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
+    <div class="bg-shape sh1"></div>
+    <div class="bg-shape sh2"></div>
+    <div class="bg-shape sh3"></div>
+    <div class="bg-shape sh4"></div>
+    <div class="bg-shape sh5"></div>
+    <div class="bg-shape sh6"></div>
+  </div>
+
+  <!-- タイトル -->
+  <header class="title">
+    <h1 class="title-text">
+      <span class="word w1">ガチャ</span>
+      <span class="word w2">ガチャ</span>
+      <span class="bang">!</span>
+    </h1>
+    <p class="subtitle">なにが でるかな？ ✨</p>
+  </header>
+
+  <main class="stage">
+    <!-- マイ写真 -->
+    <button id="photo-btn" class="audio-btn photo-btn" aria-label="マイ写真を管理" title="マイ写真">📷</button>
+    <!-- BGM切替 -->
+    <button id="bgm-btn" class="audio-btn bgm-btn" aria-label="BGMの再生/停止" title="BGM">🎵</button>
+    <!-- ミュート切替 -->
+    <button id="mute-btn" class="audio-btn mute-btn" aria-label="ミュート/解除" title="ミュート">🔊</button>
+
+    <!-- ガチャガチャ本体（横向き） -->
+    <div class="machine">
+      <div class="machine-body">
+        <div class="machine-window">
+          <div class="capsules-inside">
+            <span class="mini-capsule c1"></span>
+            <span class="mini-capsule c2"></span>
+            <span class="mini-capsule c3"></span>
+            <span class="mini-capsule c4"></span>
+            <span class="mini-capsule c5"></span>
+            <span class="mini-capsule c6"></span>
+            <span class="mini-capsule c7"></span>
+            <span class="mini-capsule c8"></span>
+          </div>
+        </div>
+        <div class="machine-label">GACHA</div>
+        <div class="machine-knob">
+          <div class="knob-handle"></div>
+        </div>
+        <div class="machine-slot"></div>
+        <!-- 型番イースターエッグ -->
+        <div class="machine-serial" aria-label="ZARIGANI">★ MODEL ZARIGANI 🦞 ★ No.0417</div>
+      </div>
+      <!-- 受け皿（トレー） -->
+      <div class="tray"></div>
+    </div>
+
+    <!-- マシン周りの星 -->
+    <div class="star-decor" aria-hidden="true">
+      <span class="twinkle t1">✦</span>
+      <span class="twinkle t2">✧</span>
+      <span class="twinkle t3">✦</span>
+      <span class="twinkle t4">✧</span>
+      <span class="twinkle t5">✦</span>
+    </div>
+
+    <!-- 床 -->
+    <div class="floor"></div>
+
+    <!-- カプセル -->
+    <div class="capsule" id="capsule">
+      <div class="capsule-top">
+        <span class="capsule-shine"></span>
+      </div>
+      <div class="capsule-bottom"></div>
+      <div class="item" id="item">
+        <img id="item-img" alt="item" />
+      </div>
+    </div>
+
+    <!-- 喜びの吹き出し -->
+    <div class="speech-bubble" id="speech-bubble" hidden>やったね！</div>
+
+    <!-- コンフェッティ発射台 -->
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+    <!-- 操作（ガチャの主要アクションだけ） -->
+    <div class="controls">
+      <button id="trigger-btn" class="trigger-btn">
+        <span class="btn-icon">★</span>
+        <span class="btn-text">ガチャを まわす！</span>
+      </button>
+      <button id="reset-btn" class="reset-btn" hidden>
+        <span class="btn-icon">↻</span>
+        <span class="btn-text">もう いっかい！</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ノイズ検出パネル（ステージの外、下に配置） -->
+  <aside class="sound-panel">
+    <div class="sound-panel-header">
+      <h3 class="sound-title">🎤 おとで まわす</h3>
+      <button id="mic-btn" class="mic-btn">
+        <span class="btn-text">おとを ひろう</span>
+      </button>
+    </div>
+    <p class="hint">おおきな おとを <strong>3かい</strong> だすと まわるよ！</p>
+    <div class="sound-row">
+      <span class="sound-label">スコア</span>
+      <div class="meter">
+        <div class="meter-bar" id="meter-bar"></div>
+        <div class="meter-threshold" id="meter-threshold"></div>
+      </div>
+      <span class="meter-value" id="meter-value">0.00</span>
+    </div>
+    <div class="sound-row">
+      <span class="sound-label">カウント</span>
+      <div class="count-dots" id="count-dots">
+        <span class="dot"><svg viewBox="0 0 24 24"><polygon points="12,2 14.9,8.6 22,9.3 16.5,14 18.2,21 12,17.3 5.8,21 7.5,14 2,9.3 9.1,8.6"/></svg></span>
+        <span class="dot"><svg viewBox="0 0 24 24"><polygon points="12,2 14.9,8.6 22,9.3 16.5,14 18.2,21 12,17.3 5.8,21 7.5,14 2,9.3 9.1,8.6"/></svg></span>
+        <span class="dot"><svg viewBox="0 0 24 24"><polygon points="12,2 14.9,8.6 22,9.3 16.5,14 18.2,21 12,17.3 5.8,21 7.5,14 2,9.3 9.1,8.6"/></svg></span>
+      </div>
+      <span class="count-value" id="count-value">0 / 3</span>
+    </div>
+  </aside>
+
+  <!-- 写真設定モーダル -->
+  <div class="modal" id="photo-modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel" role="dialog" aria-labelledby="photo-modal-title">
+      <button class="modal-close" id="photo-close" aria-label="閉じる" data-close>×</button>
+      <h2 id="photo-modal-title" class="modal-title">📷 ガチャの しゃしん</h2>
+
+      <!-- マイ写真セクション -->
+      <section class="modal-section">
+        <h3 class="section-title">📸 マイ写真</h3>
+        <p class="modal-hint">
+          ついかした しゃしんも ガチャに でてくるよ！<br>
+          <small>※ この たんまつ（ブラウザ）にだけ ほぞんされます</small>
+        </p>
+
+        <div class="add-actions">
+          <label class="add-photo-btn">
+            <input type="file" id="photo-input" accept="image/*" multiple hidden />
+            <span class="add-photo-icon">＋</span>
+            <span class="add-photo-text">写真を ついか</span>
+          </label>
+          <p class="paste-hint">
+            📋 コピーした 写真は <kbd>Ctrl</kbd>+<kbd>V</kbd> でも ついかOK
+          </p>
+        </div>
+
+        <div class="photo-stats">
+          <span id="photo-count">0</span> まい ほぞんちゅう
+        </div>
+
+        <div class="photo-grid" id="photo-grid"></div>
+        <p class="photo-empty" id="photo-empty">まだ ついかされた しゃしんは ありません</p>
+      </section>
+
+      <!-- プリセットセクション -->
+      <section class="modal-section">
+        <h3 class="section-title">⭐ プリセット</h3>
+        <p class="modal-hint">
+          つかいたい しゃしんに <span class="inline-check">✓</span> を つけてね
+        </p>
+
+        <div class="bulk-actions">
+          <button id="preset-all" class="bulk-btn">ぜんぶ つかう</button>
+          <button id="preset-none" class="bulk-btn">ぜんぶ はずす</button>
+        </div>
+
+        <div class="preset-stats">
+          <span id="preset-enabled-count">0</span> / <span id="preset-total-count">0</span> まい つかいます
+        </div>
+
+        <div class="preset-grid" id="preset-grid"></div>
+      </section>
+    </div>
+  </div>
+
+  <script src="sound-detector.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
