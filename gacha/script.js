@@ -453,8 +453,10 @@ async function loadManifest() {
 const $trigger = document.getElementById('trigger-btn');
 const $reset = document.getElementById('reset-btn');
 const $machine = document.querySelector('.machine');
+const $stage = document.querySelector('.stage');
 const $capsule = document.getElementById('capsule');
 const $capsuleTop = $capsule.querySelector('.capsule-top');
+const $item = document.getElementById('item');
 const $itemImg = document.getElementById('item-img');
 const $confetti = document.getElementById('confetti');
 const $speech = document.getElementById('speech-bubble');
@@ -497,6 +499,8 @@ function resetCapsule() {
   // インライン opacity はクラスルールより強いので設定しない
   // （.capsule { opacity: 0 } が基底で効く）
   $capsule.style.removeProperty('opacity');
+  // reveal用オフセット変数をクリア（次回再計算）
+  $item.style.removeProperty('--reveal-offset-x');
   $itemImg.removeAttribute('src');
   // 強制 reflow してスタイル適用を即時反映
   void $capsule.offsetWidth;
@@ -620,6 +624,13 @@ async function runGacha() {
   await wait(600);
 
   // 6. アイテム出現＋演出
+  // ステージ中央に出すため、カプセル中心からのオフセットを動的に計算
+  const stageRect = $stage.getBoundingClientRect();
+  const capRect = $capsule.getBoundingClientRect();
+  const offsetX =
+    stageRect.left + stageRect.width / 2 - (capRect.left + capRect.width / 2);
+  $item.style.setProperty('--reveal-offset-x', offsetX + 'px');
+
   $capsule.classList.add('revealing');
   sfx.reveal();
   spawnConfetti();

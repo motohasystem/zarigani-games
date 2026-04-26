@@ -446,7 +446,7 @@ body {
   bottom: 80px;
   width: 120px;
   height: 120px;
-  z-index: 4;
+  z-index: 6;
   opacity: 0;
   pointer-events: none;
 }
@@ -497,6 +497,7 @@ body {
 
 /* アイテム */
 .item {
+  --reveal-offset-x: 0px;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -568,12 +569,12 @@ body {
 }
 @keyframes itemReveal {
   0%   { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(-30deg); }
-  60%  { opacity: 1; transform: translate(-50%, -150%) scale(3.6) rotate(15deg); }
-  100% { opacity: 1; transform: translate(-50%, -210%) scale(4.8) rotate(0deg); }
+  60%  { opacity: 1; transform: translate(calc(-50% + var(--reveal-offset-x)), -150%) scale(3.6) rotate(15deg); }
+  100% { opacity: 1; transform: translate(calc(-50% + var(--reveal-offset-x)), -210%) scale(4.8) rotate(0deg); }
 }
 @keyframes itemFloat {
-  0%, 100% { transform: translate(-50%, -210%) scale(4.8) rotate(-2deg); }
-  50%      { transform: translate(-50%, -230%) scale(4.9) rotate(2deg); }
+  0%, 100% { transform: translate(calc(-50% + var(--reveal-offset-x)), -210%) scale(4.8) rotate(-2deg); }
+  50%      { transform: translate(calc(-50% + var(--reveal-offset-x)), -230%) scale(4.9) rotate(2deg); }
 }
 
 /* ====================================================
