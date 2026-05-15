@@ -23,7 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 <script src="../back-bar.js"></script>
 ```
 
-ローカル開発時は手動で入れておくのが推奨。万一入れ忘れても、GitHub Pages 用のビルド (`scripts/build.py`) が未挿入のファイルに対して自動補完するので、公開版では戻りバーが出る（既に入っているファイルは二重挿入されない）。
+ローカル開発時は手動で入れておくのが推奨。万一入れ忘れても、AWS Amplify のビルド (`scripts/build.py`、`amplify.yml` から呼ばれる) が未挿入のファイルに対して自動補完するので、公開版では戻りバーが出る（既に入っているファイルは二重挿入されない）。
 
 ## 開発環境
 - 静的ファイルのため、ローカルサーバーで動作確認
