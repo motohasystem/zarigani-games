@@ -984,6 +984,7 @@ async function openPhotoModal() {
 }
 
 function closePhotoModal() {
+  if (typeof cameraStream !== 'undefined' && cameraStream) closeCamera();
   $photoModal.hidden = true;
 }
 
@@ -1121,6 +1122,113 @@ $photoInput.addEventListener('change', async (e) => {
   e.target.value = ''; // 同じファイルを再選択できるように
   await addPhotoFiles(files);
 });
+
+// ======================================================
+// カメラ撮影（getUserMedia → canvas → Blob → IndexedDB）
+// ======================================================
+
+const $cameraBtn = document.getElementById('camera-btn');
+const $cameraView = document.getElementById('camera-view');
+const $cameraVideo = document.getElementById('camera-video');
+const $cameraFlash = document.getElementById('camera-flash');
+const $cameraShoot = document.getElementById('camera-shoot');
+const $cameraCancel = document.getElementById('camera-cancel');
+const $cameraFlip = document.getElementById('camera-flip');
+const $cameraHint = document.getElementById('camera-hint');
+
+let cameraStream = null;
+let cameraFacing = 'environment'; // 初期は背面（モバイル）。失敗したら自動でフロントに
+
+async function openCamera() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    alert('このブラウザは カメラに たいおうしていません');
+    return;
+  }
+  $cameraView.hidden = false;
+  $cameraShoot.disabled = true;
+  $cameraHint.textContent = 'じゅんびちゅう…';
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: cameraFacing }, width: { ideal: 1280 }, height: { ideal: 1280 } },
+      audio: false,
+    });
+    $cameraVideo.srcObject = cameraStream;
+    await $cameraVideo.play().catch(() => {});
+    $cameraShoot.disabled = false;
+    $cameraHint.textContent = 'シャッターボタンを おしてね';
+  } catch (err) {
+    console.error('[gacha] camera start failed:', err);
+    $cameraHint.textContent = 'カメラを ひらけませんでした';
+    alert('カメラの きどうに しっぱい:\n' + (err.message || err));
+    closeCamera();
+  }
+}
+
+function closeCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach((t) => t.stop());
+    cameraStream = null;
+  }
+  $cameraVideo.srcObject = null;
+  $cameraView.hidden = true;
+}
+
+async function shootCamera() {
+  if (!cameraStream || $cameraShoot.disabled) return;
+  $cameraShoot.disabled = true;
+
+  // フラッシュ演出
+  $cameraFlash.classList.remove('flash');
+  void $cameraFlash.offsetWidth;
+  $cameraFlash.classList.add('flash');
+
+  const w = $cameraVideo.videoWidth;
+  const h = $cameraVideo.videoHeight;
+  if (!w || !h) {
+    $cameraShoot.disabled = false;
+    return;
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  // フロントカメラのときは鏡像になるよう左右反転して保存
+  if (cameraFacing === 'user') {
+    ctx.translate(w, 0);
+    ctx.scale(-1, 1);
+  }
+  ctx.drawImage($cameraVideo, 0, 0, w, h);
+
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+  if (!blob) {
+    $cameraShoot.disabled = false;
+    return;
+  }
+  const file = new File([blob], `camera-${Date.now()}.jpg`, { type: 'image/jpeg' });
+  await addPhotoFiles([file]);
+  $cameraShoot.disabled = false;
+}
+
+async function flipCamera() {
+  cameraFacing = cameraFacing === 'environment' ? 'user' : 'environment';
+  if (cameraStream) {
+    cameraStream.getTracks().forEach((t) => t.stop());
+    cameraStream = null;
+  }
+  await openCamera();
+}
+
+$cameraBtn.addEventListener('click', openCamera);
+$cameraCancel.addEventListener('click', closeCamera);
+$cameraShoot.addEventListener('click', shootCamera);
+$cameraFlip.addEventListener('click', flipCamera);
+
+// フロントカメラ表示は鏡像のほうが自然
+function applyVideoMirror() {
+  $cameraVideo.style.transform = cameraFacing === 'user' ? 'scaleX(-1)' : 'none';
+}
+$cameraVideo.addEventListener('playing', applyVideoMirror);
+
 
 // クリップボードからのペースト（モーダルが開いているときのみ反応）
 document.addEventListener('paste', async (e) => {

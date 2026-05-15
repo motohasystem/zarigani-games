@@ -155,14 +155,40 @@
         </p>
 
         <div class="add-actions">
-          <label class="add-photo-btn">
-            <input type="file" id="photo-input" accept="image/*" multiple hidden />
-            <span class="add-photo-icon">＋</span>
-            <span class="add-photo-text">写真を ついか</span>
-          </label>
+          <div class="add-buttons">
+            <label class="add-photo-btn">
+              <input type="file" id="photo-input" accept="image/*" multiple hidden />
+              <span class="add-photo-icon">＋</span>
+              <span class="add-photo-text">写真を ついか</span>
+            </label>
+            <button type="button" id="camera-btn" class="camera-open-btn">
+              <span class="add-photo-icon">📷</span>
+              <span class="add-photo-text">カメラで さつえい</span>
+            </button>
+          </div>
           <p class="paste-hint">
             📋 コピーした 写真は <kbd>Ctrl</kbd>+<kbd>V</kbd> でも ついかOK
           </p>
+        </div>
+
+        <!-- カメラ撮影ビュー -->
+        <div class="camera-view" id="camera-view" hidden>
+          <div class="camera-stage">
+            <video id="camera-video" class="camera-video" autoplay playsinline muted></video>
+            <div class="camera-flash" id="camera-flash"></div>
+          </div>
+          <div class="camera-controls">
+            <button type="button" id="camera-cancel" class="camera-cancel-btn">
+              <span>✕ やめる</span>
+            </button>
+            <button type="button" id="camera-shoot" class="camera-shoot-btn" aria-label="シャッター">
+              <span class="shoot-inner"></span>
+            </button>
+            <button type="button" id="camera-flip" class="camera-flip-btn" aria-label="カメラ切替">
+              <span>🔄</span>
+            </button>
+          </div>
+          <p class="camera-hint" id="camera-hint">じゅんびちゅう…</p>
         </div>
 
         <div class="photo-stats">
@@ -191,11 +217,14 @@
 
         <div class="preset-grid" id="preset-grid"></div>
       </section>
+
+      <div class="modal-footer">
+        <button type="button" class="modal-done-btn" data-close>とじる</button>
+      </div>
     </div>
   </div>
 
   <script src="sound-detector.js"></script>
   <script src="script.js"></script>
-  <script src="../back-bar.js"></script>
 </body>
 </html>
