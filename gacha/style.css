@@ -441,6 +441,7 @@ body {
    ==================================================== */
 
 .capsule {
+  --roll-distance: 260px;
   position: absolute;
   left: 200px;
   bottom: 80px;
@@ -529,25 +530,25 @@ body {
   animation: rollOut 1.8s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
 }
 @keyframes rollOut {
-  0%   { transform: translateX(0) translateY(0) rotate(0deg); opacity: 0; }
+  0%   { transform: translateX(0)                                  translateY(0)    rotate(0deg);   opacity: 0; }
   10%  { opacity: 1; }
-  60%  { transform: translateX(180px) translateY(-12px) rotate(440deg); }
-  72%  { transform: translateX(220px) translateY(0)    rotate(540deg); }
-  85%  { transform: translateX(250px) translateY(-6px) rotate(640deg); }
-  100% { transform: translateX(260px) translateY(0)    rotate(720deg); opacity: 1; }
+  60%  { transform: translateX(calc(var(--roll-distance) * 0.69))  translateY(-12px) rotate(440deg); }
+  72%  { transform: translateX(calc(var(--roll-distance) * 0.85))  translateY(0)     rotate(540deg); }
+  85%  { transform: translateX(calc(var(--roll-distance) * 0.96))  translateY(-6px)  rotate(640deg); }
+  100% { transform: translateX(var(--roll-distance))               translateY(0)     rotate(720deg); opacity: 1; }
 }
 
 /* 2. 停止＋ぷるぷる予兆 */
 .capsule.stopped {
   opacity: 1;
-  transform: translateX(260px) rotate(720deg);
+  transform: translateX(var(--roll-distance)) rotate(720deg);
   animation: anticipate 0.4s ease-in-out;
 }
 @keyframes anticipate {
-  0%, 100% { transform: translateX(260px) rotate(720deg); }
-  25%      { transform: translateX(258px) rotate(715deg); }
-  50%      { transform: translateX(262px) rotate(725deg); }
-  75%      { transform: translateX(258px) rotate(715deg); }
+  0%, 100% { transform: translateX(var(--roll-distance))              rotate(720deg); }
+  25%      { transform: translateX(calc(var(--roll-distance) - 2px))  rotate(715deg); }
+  50%      { transform: translateX(calc(var(--roll-distance) + 2px))  rotate(725deg); }
+  75%      { transform: translateX(calc(var(--roll-distance) - 2px))  rotate(715deg); }
 }
 
 /* 3. カプセル開く（ポンッ！） */
@@ -1534,4 +1535,282 @@ body {
   .controls { right: 10px; bottom: 220px; }
   .sound-panel { width: min(420px, 96vw); padding: 12px 14px; }
   .machine-label { font-size: 22px; }
+}
+
+/* スマホ（〜480px）: 全体の縮小・再配置 */
+@media (max-width: 480px) {
+  body { padding: 12px 8px; gap: 12px; }
+
+  /* タイトル */
+  .title-text {
+    font-size: clamp(28px, 9vw, 48px);
+    gap: 4px;
+  }
+  .word, .bang {
+    -webkit-text-stroke: 4px var(--ink);
+    text-stroke: 4px var(--ink);
+    text-shadow: 3px 4px 0 var(--ink);
+  }
+  .subtitle {
+    font-size: 13px;
+    padding: 4px 12px;
+    border-width: 2px;
+  }
+
+  /* ステージ自体 */
+  .stage {
+    width: 100%;
+    height: 440px;
+  }
+
+  /* オーディオボタン（3個を右上に詰める） */
+  .audio-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+    top: 10px;
+    border-width: 3px;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .mute-btn  { right: 12px; }
+  .bgm-btn   { right: 60px; }
+  .photo-btn { right: 108px; }
+
+  /* マシン本体を縮小 */
+  .machine {
+    width: 220px;
+    height: 320px;
+    left: 16px;
+    bottom: 70px;
+  }
+  .machine-body { height: 260px; }
+  .machine-window {
+    top: 30px;
+    width: 160px;
+    height: 130px;
+    border-width: 4px;
+  }
+  .machine-label {
+    font-size: 20px;
+    bottom: 64px;
+    letter-spacing: 2px;
+  }
+  .machine-knob {
+    width: 50px;
+    height: 50px;
+    left: 28px;
+    bottom: 12px;
+    border-width: 4px;
+  }
+  .knob-handle { height: 24px; }
+  .machine-slot {
+    width: 44px;
+    height: 30px;
+    right: 22px;
+    bottom: 22px;
+  }
+  .machine-serial { font-size: 8px; letter-spacing: 0.5px; }
+
+  /* マシン内のミニカプセル（窓に収まるサイズへ） */
+  .mini-capsule { width: 24px; height: 24px; border-width: 2px; }
+  .mini-capsule.c1 { top: 14px; left: 18px; }
+  .mini-capsule.c2 { top: 22px; left: 62px; }
+  .mini-capsule.c3 { top: 16px; left: 108px; }
+  .mini-capsule.c4 { top: 54px; left: 10px; }
+  .mini-capsule.c5 { top: 60px; left: 54px; }
+  .mini-capsule.c6 { top: 60px; left: 100px; }
+  .mini-capsule.c7 { top: 92px; left: 36px; }
+  .mini-capsule.c8 { top: 96px; left: 84px; }
+
+  /* トレー */
+  .tray {
+    width: 200px;
+    height: 44px;
+    bottom: -42px;
+    border-width: 4px;
+  }
+
+  /* カプセル（小型化＋転がり距離短縮） */
+  .capsule {
+    --roll-distance: 200px;
+    left: 140px;
+    bottom: 70px;
+    width: 90px;
+    height: 90px;
+  }
+  .capsule-top,
+  .capsule-bottom {
+    width: 90px;
+    height: 45px;
+    border-width: 4px;
+  }
+  .capsule-top {
+    border-radius: 90px 90px 0 0;
+  }
+  .capsule-bottom {
+    top: 45px;
+    border-radius: 0 0 90px 90px;
+  }
+  .capsule-shine { top: 10px; left: 14px; width: 22px; height: 14px; }
+
+  /* アイテム（露出時の大きさ） */
+  .item { width: 56px; height: 56px; }
+
+  /* ガチャ実行ボタン（マシン下、ステージ中央へ） */
+  .controls {
+    right: auto;
+    left: 50%;
+    bottom: 6px;
+    transform: translateX(-50%);
+    flex-direction: row;
+    gap: 10px;
+  }
+  .trigger-btn {
+    padding: 12px 22px;
+    font-size: 16px;
+    border-width: 4px;
+  }
+  .reset-btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    border-width: 4px;
+  }
+  .btn-icon { font-size: 18px; }
+
+  /* 喜びの吹き出し（オーディオボタンの上に出す） */
+  .speech-bubble {
+    top: 60px;
+    font-size: 18px;
+    padding: 8px 16px;
+    border-width: 4px;
+    z-index: 9;
+  }
+  .speech-bubble::after {
+    width: 16px;
+    height: 16px;
+    bottom: -12px;
+    margin-left: -8px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+  }
+
+  /* 床（少し低く） */
+  .floor { height: 56px; }
+
+  /* ツインクル（マシン縮小に合わせてマシン右上の余白へ再配置） */
+  .twinkle { font-size: 18px; }
+  .t1 { top: 60px;  left: auto; right: 30px;  font-size: 20px; }
+  .t2 { top: 110px; left: auto; right: 90px;  font-size: 14px; }
+  .t3 { top: 170px; left: auto; right: 40px;  font-size: 22px; }
+  .t4 { top: 50px;  left: auto; right: 100px; font-size: 12px; }
+  .t5 { top: 150px; left: auto; right: 18px;  font-size: 16px; }
+
+  /* 音検出パネル */
+  .sound-panel {
+    width: min(360px, 96vw);
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+  .sound-title { font-size: 14px; }
+  .mic-btn { padding: 6px 12px; font-size: 11px; }
+  .sound-label { flex: 0 0 56px; font-size: 11px; }
+  .meter { height: 14px; }
+  .count-dots .dot { width: 22px; height: 22px; }
+  .count-value, .meter-value { flex-basis: 40px; font-size: 11px; }
+
+  /* モーダル全般 */
+  .modal { padding: 8px; }
+  .modal-panel {
+    padding: 22px 14px 18px;
+    max-height: 92vh;
+    border-width: 4px;
+    border-radius: 18px;
+  }
+  .modal-title { font-size: 20px; }
+  .modal-close {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    top: 8px;
+    right: 8px;
+    border-width: 3px;
+  }
+  .modal-hint { font-size: 13px; }
+  .modal-hint small { font-size: 10px; }
+  .section-title { font-size: 16px; }
+
+  /* 写真追加ボタン群（縦積み） */
+  .add-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  .add-photo-btn,
+  .camera-open-btn {
+    width: 100%;
+    max-width: 280px;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-width: 4px;
+  }
+  .paste-hint { font-size: 11px; }
+
+  /* 写真・プリセットのグリッド（セル小型化） */
+  .photo-grid,
+  .preset-grid {
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 6px;
+  }
+  .thumb-delete {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+    border-width: 2px;
+  }
+  .bulk-actions { gap: 6px; }
+  .bulk-btn { font-size: 12px; padding: 6px 12px; }
+
+  /* カメラビュー */
+  .camera-view {
+    padding: 10px;
+    border-width: 3px;
+    border-radius: 14px;
+  }
+  .camera-controls { gap: 12px; }
+  .camera-shoot-btn {
+    width: 60px;
+    height: 60px;
+    border-width: 4px;
+  }
+  .shoot-inner { width: 40px; height: 40px; border-width: 2px; }
+  .camera-cancel-btn,
+  .camera-flip-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-width: 3px;
+  }
+  .camera-flip-btn { font-size: 16px; padding: 6px 10px; }
+  .camera-hint { font-size: 12px; }
+
+  /* 下部「とじる」ボタン */
+  .modal-done-btn {
+    padding: 10px 28px;
+    font-size: 16px;
+    border-width: 4px;
+  }
+
+  /* 背景の雲・装飾図形は控えめに */
+  .bg-shape { transform: scale(0.7); }
+}
+
+/* さらに極小幅（〜360px）でのフォロー */
+@media (max-width: 360px) {
+  .audio-btn { width: 38px; height: 38px; font-size: 16px; }
+  .mute-btn  { right: 8px; }
+  .bgm-btn   { right: 52px; }
+  .photo-btn { right: 96px; }
+  .machine { left: 8px; }
+  .capsule { --roll-distance: 150px; left: 110px; }
+  .trigger-btn { padding: 10px 18px; font-size: 14px; }
+  .reset-btn { padding: 8px 14px; font-size: 13px; }
 }
