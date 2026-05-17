@@ -3,8 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
+        # Playwright Python パッケージのみ。Chromium と必要な依存ライブラリは
+        # カスタムビルドイメージ (mcr.microsoft.com/playwright/python:*-noble) に
+        # 同梱済みなのでここでのインストール不要。
         - pip3 install --quiet playwright
-        - python3 -m playwright install --with-deps chromium
     build:
       commands:
         - python3 scripts/build.py --screenshots
@@ -13,5 +15,4 @@ frontend:
     files:
       - '**/*'
   cache:
-    paths:
-      - ~/.cache/ms-playwright/**/*
+    paths: []
