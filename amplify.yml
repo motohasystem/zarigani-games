@@ -4,9 +4,10 @@ frontend:
     preBuild:
       commands:
         # Playwright Python パッケージのみ。Chromium と必要な依存ライブラリは
-        # カスタムビルドイメージ (mcr.microsoft.com/playwright/python:*-noble) に
-        # 同梱済みなのでここでのインストール不要。
-        - pip3 install --quiet playwright
+        # カスタムビルドイメージ (mcr.microsoft.com/playwright/python:v1.50.0-noble)
+        # に同梱済み。バージョンはイメージと完全一致させる必要があるため固定する。
+        # Docker イメージを上げる時はこの数字も一緒に上げること。
+        - pip3 install --quiet "playwright==1.50.0"
     build:
       commands:
         - python3 scripts/build.py --screenshots
