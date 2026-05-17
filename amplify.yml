@@ -1,12 +1,17 @@
 version: 1
 frontend:
   phases:
+    preBuild:
+      commands:
+        - pip3 install --quiet playwright
+        - python3 -m playwright install --with-deps chromium
     build:
       commands:
-        - python3 scripts/build.py
+        - python3 scripts/build.py --screenshots
   artifacts:
     baseDirectory: dist
     files:
       - '**/*'
   cache:
-    paths: []
+    paths:
+      - ~/.cache/ms-playwright/**/*

@@ -1,6 +1,9 @@
 (function () {
   'use strict';
 
+  // OGP撮影モードではバーを描画しない
+  if (/[?&]ogp=1\b/.test(location.search)) return;
+
   function init() {
     if (document.getElementById('zg-back-bar')) return;
 
