@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>へんとつくり</title>
+<meta name="description" content="漢字をばらして、組んで、まだない字で書く。">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="%23FBFCFA"/><rect x="1.5" y="1.5" width="29" height="29" fill="none" stroke="%2315191C" stroke-width="3"/><path d="M12 2v28" stroke="%236FB3AA" stroke-width="2" stroke-dasharray="3 3"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@500;700&family=Zen+Maru+Gothic:wght@700&family=Klee+One:wght@600&family=Yuji+Syuku&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="./assets/index-z0t9SCtR.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Bw8Akfus.css">
+</head>
+<body>
+<header class="mast">
+  <div class="lockup" aria-hidden="true"><span class="hen"><b>へ</b><b>ん</b></span><span class="tsukuri"><b>つ</b><b>く</b><b>り</b></span></div>
+  <h1>へんとつくり</h1>
+  <p>漢字をばらして、組んで、<br>まだない字で書く。</p>
+  <nav aria-label="作業のじゅん番"><a href="#s1">一 ばらす</a><a href="#s2">二 組む</a><a href="#s3">三 書く</a></nav>
+</header>
+
+<main>
+  <div class="bench">
+    <section id="s1" aria-labelledby="h1">
+      <h2 id="h1"><span class="num">一</span>ばらす</h2>
+      <p class="lead">字を入力してえらび、使いたいところをタップします。つながっていて分けられないところは、ドラッグしたわくで切り取れます。</p>
+      <div class="row">
+        <input id="src" type="text" aria-label="ばらす字" placeholder="ばらしたい字を入力" autocomplete="off">
+        <label class="inline">書体 <select id="exFont"></select></label>
+      </div>
+      <div id="chips" class="chips" role="group" aria-label="入力した字"></div>
+      <div id="exBox" class="paperbox"><canvas id="ex" aria-label="使うところをえらぶ紙"></canvas></div>
+      <div class="btns" role="group" aria-label="まとめてえらぶ">
+        <button data-q="l">左</button><button data-q="r">右</button><button data-q="t">上</button><button data-q="b">下</button>
+        <button data-q="all">ぜんぶ</button><button data-q="none">ぜんぶ外す</button><button id="unframe" disabled>わくを外す</button>
+      </div>
+      <div class="make">
+        <canvas id="exPrev" width="168" height="168" aria-label="パーツの仕上がり"></canvas>
+        <div><button id="addPart" class="primary">パーツにする</button>
+        <small>字をまるごとパーツにして、あとでつぶして使うこともできます。</small></div>
+      </div>
+    </section>
+
+    <section id="s2" aria-labelledby="h2">
+      <h2 id="h2"><span class="num">二</span>組む</h2>
+      <p class="lead">パーツをタップして台にのせ、動かす・のばす・つぶす。かどやふちの黄色い点を引くと形がかわります。</p>
+      <h3>パーツ</h3>
+      <div id="tray" class="tiles"></div>
+      <h3>組み台</h3>
+      <div id="stageBox" class="paperbox" tabindex="0" aria-label="組み台。やじるしキーでえらんだパーツを動かせます"><canvas id="stage"></canvas>
+        <div id="selbox"><i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i></div>
+      </div>
+      <div class="btns" id="layerBtns" role="group" aria-label="えらんだパーツを動かすボタン">
+        <button data-op="l">左によせる</button><button data-op="r">右によせる</button><button data-op="t">上によせる</button><button data-op="b">下によせる</button>
+        <button data-op="full">いっぱいに</button><button data-op="home">元の場所</button>
+        <button data-op="fx">左右反転</button><button data-op="fy">上下反転</button><button data-op="dup">ふやす</button><button data-op="del" class="danger">台から外す</button>
+      </div>
+      <p id="editingNote" class="editing-note"></p>
+      <div class="row" style="margin-top:10px">
+        <input id="yomi" type="text" placeholder="読み（なくてもよい）" maxlength="20">
+        <input id="imi" type="text" placeholder="意味（なくてもよい）" maxlength="40">
+      </div>
+      <div class="btns">
+        <button id="saveGlyph" class="primary">ストックに入れる</button>
+        <button id="saveNew" hidden>べつの字として入れる</button>
+        <button id="delGlyph" class="danger" hidden>この字をすてる</button>
+        <button id="clearStage">台を空にする</button>
+      </div>
+    </section>
+  </div>
+
+  <section id="s3" aria-labelledby="h3">
+    <h2 id="h3"><span class="num">三</span>書く</h2>
+    <div class="write">
+      <div>
+        <h3>ストック</h3>
+        <div id="stock" class="tiles"></div>
+        <h3>文章</h3>
+        <div id="editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="文章" spellcheck="false"></div>
+        <div class="btns rubyRow">
+          <button id="addRuby">ふりがなをつける</button>
+          <small>字をえらんでからおします。文章の中に ｜空《そら》 のように書いてもつきます。</small>
+        </div>
+        <div class="opts">
+          <span class="seg" role="group" aria-label="書く向き"><button data-dir="h">よこ書き</button><button data-dir="v">たて書き</button></span>
+          <label class="inline">一行 <input id="cols" type="range" min="6" max="24" step="1"> <output id="colsOut"></output>字</label>
+          <label class="inline">書体 <select id="textFont"></select></label>
+          <label class="inline">紙 <select id="paper"></select></label>
+          <label class="inline"><input id="grid" type="checkbox"> マス目</label>
+          <label class="inline"><input id="ruby" type="checkbox"> ふりがな</label>
+        </div>
+      </div>
+      <div>
+        <h3>仕上がり</h3>
+        <div class="sheetWrap"><canvas id="sheet"></canvas></div>
+        <div class="btns">
+          <button id="copy" class="primary">コピーする</button>
+          <button id="savePng">ほぞんする</button>
+        </div>
+        <details>
+          <summary>ストックの引っこし</summary>
+          <p>パーツとストックは、このブラウザの中にしまわれます。べつのパソコンやスマホにうつすときは、書き出したファイルを読みこんでください。</p>
+          <p id="usage" class="usage" role="status" aria-live="polite"></p>
+          <div class="btns"><button id="exportJson">ファイルに書き出す</button>
+          <label class="inline">読みこむ <input id="importJson" type="file" accept=".json,application/json"></label></div>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<dialog id="manual">
+  <p>このブラウザではボタンからコピーできませんでした。下の絵を右クリック（スマホは長おし）して「コピー」をえらんでください。</p>
+  <img id="manualImg" alt="仕上がりの絵">
+  <form method="dialog"><button>とじる</button></form>
+</dialog>
+<dialog id="rubyDlg" aria-labelledby="rubyFor">
+  <form method="dialog">
+    <p id="rubyFor"></p>
+    <input id="rubyText" type="text" maxlength="30" autocomplete="off" aria-label="読み" placeholder="ひらがなで">
+    <div class="btns"><button value="ok" class="primary">つける</button><button value="cancel" formnovalidate>やめる</button></div>
+  </form>
+</dialog>
+
+</body>
+</html>
